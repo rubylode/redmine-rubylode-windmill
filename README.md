@@ -172,6 +172,10 @@ ruby bin/test test/unit/attention_rule_test.rb
 
 Minitest. The rule, the cron reading, the schedule check, the path matcher, the client and the status report are plain Ruby classes with unit tests. The integration tests start the fake Windmill on a local port, including two of them to prove the token never reaches a second server, and run a hostile error message through the page.
 
+## Releasing
+
+Push a `vX.Y.Z` tag whose version matches `version` in `init.rb` and has an entry in `CHANGELOG.md`. CI runs the tests, builds `redmine_rubylode_windmill-X.Y.Z.zip` and publishes the GitHub release with the changelog entry as its notes. To build a release for a tag that already exists, use Actions, release, Run workflow.
+
 ## License
 
 GNU General Public License, version 2 or later. See `LICENSE`.
