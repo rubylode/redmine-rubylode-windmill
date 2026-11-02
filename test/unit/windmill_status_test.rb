@@ -160,4 +160,62 @@ class RubylodeWindmill::WindmillStatusTest < ActiveSupport::TestCase
     assert report.schedules.first.unreadable
     assert_equal 1, report.rows.size
   end
+
+  def status_with_cache(cache, client)
+    RubylodeWindmill::WindmillStatus.new(configuration: configuration_with, cache: cache, client: client)
+  end
+
+  test "a cache that cannot be read or written still gives the report from a live fetch, and logs a warning" do
+    client = StubClient.new(failed: [failed("f/a/job", 10)])
+    report = nil
+    log = captured_log { report = status_with_cache(UnwritableCache.new, client).report(now: NOW) }
+
+    refute report.unavailable?
+    assert_equal "1 failing", report.summary
+    assert_equal 1, client.asked
+    assert_includes log, "WARN"
+    assert_includes log, "Errno::EACCES"
+  end
+
+  test "a cache that cannot be written still gives the report from a live fetch" do
+    report = nil
+    log = captured_log { report = status_with_cache(UnwritableCache.new(read: false), StubClient.new(failed: [failed("f/a/job", 10)])).report(now: NOW) }
+
+    refute report.unavailable?
+    assert_equal "1 failing", report.summary
+    assert_includes log, "cache write failed"
+  end
+
+  test "a failed fetch with a cache that cannot be written is the status unavailable report" do
+    report = nil
+    captured_log { report = status_with_cache(UnwritableCache.new, StubClient.new(failed: [], unavailable: true)).report(now: NOW) }
+
+    assert report.unavailable?
+    assert_equal "Windmill answered 503", report.failure_reason
+  end
+
+  test "any error from the cache store is ignored, not only system call errors" do
+    cache = Object.new
+    def cache.read(*) = raise(TypeError, "incompatible marshal file format")
+    def cache.write(*) = raise(IOError, "closed stream")
+    report = nil
+    captured_log { report = status_with_cache(cache, StubClient.new(failed: [])).report(now: NOW) }
+
+    refute report.unavailable?
+  end
+
+  test "safe_report answers status unavailable and logs the class when building the report raises" do
+    configuration = configuration_with
+    report = nil
+    log = captured_log do
+      replacing_method(RubylodeWindmill::WindmillStatus, :current, ->(*) { raise ArgumentError, "boom" }) do
+        report = RubylodeWindmill::WindmillStatus.safe_report(configuration)
+      end
+    end
+
+    assert report.unavailable?
+    assert_equal "Status unavailable", report.summary
+    assert_equal "ArgumentError", report.failure_reason
+    assert_includes log, "ArgumentError: boom"
+  end
 end

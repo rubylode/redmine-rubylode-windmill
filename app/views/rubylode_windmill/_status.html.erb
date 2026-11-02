@@ -10,7 +10,7 @@
   <% show_title = local_assigns.fetch(:show_title, true) %>
   <% compact = local_assigns.fetch(:compact, false) %>
   <% if configuration.configured? %>
-    <% report = RubylodeWindmill::WindmillStatus.current(configuration).report %>
+    <% report = RubylodeWindmill::WindmillStatus.safe_report(configuration) %>
     <% run_url = ->(run_id) { run_id.to_s.match?(/\A[0-9a-f-]{36}\z/i) ? "#{configuration.windmill_url}/run/#{run_id}?workspace=#{ERB::Util.url_encode(configuration.workspace_id)}" : nil } %>
     <div class="rubylode-windmill-status<%= " is-compact" if compact %>">
       <% if show_title %><h3 class="rubylode-windmill-status-title"><%= block_title %></h3><% end %>

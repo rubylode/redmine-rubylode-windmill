@@ -159,6 +159,10 @@ ruby bin/demo down
 
 Sign in as `admin` / `admin` (sees the settings and the hints) or `dana` / `demo-password-1`. The fake Windmill is `test/support/fake_windmill_server.rb`: the three calls above in the shape of Windmill's OpenAPI document, with the bearer token required. The `failures` scenario shows failing paths, a failure that was followed by a success (not listed), an old failure outside the window, a failing schedule and a late one. The demo caches an answer for 5 seconds. `npm install && npm run check` checks the running demo in a browser; `npm run screenshots` retakes the screenshots.
 
+## Troubleshooting
+
+- **A cache problem never breaks the page.** If the cache store cannot be read or written (a cache file owned by another user, a full disk), the plugin logs a warning with the error class and message, treats it as an empty cache and fetches live; the page still answers.
+
 ## Tests
 
 ```

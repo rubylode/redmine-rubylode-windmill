@@ -49,6 +49,14 @@ module RubylodeWindmill
         "rubylode_windmill/status/#{configuration.cache_fingerprint}"
       end
 
+      # The report for a page. Whatever goes wrong while building it, the page gets a "status unavailable" report and never an error.
+      def safe_report(configuration = Configuration.current)
+        current(configuration).report
+      rescue StandardError => error
+        Rails.logger.warn("Rubylode Windmill: could not build the status block: #{error.class}: #{error.message}")
+        Report.new([], [], 0, [], I18n.t("rubylode_windmill.status.unavailable"), :unavailable, true, error.class.name)
+      end
+
       def current(configuration = Configuration.current)
         new(configuration: configuration, cache: cache)
       end
@@ -74,7 +82,7 @@ module RubylodeWindmill
     private
 
     def cached_snapshot
-      snapshot = @cache.read(self.class.cache_key_for(@configuration))
+      snapshot = read_cache
       if snapshot.nil?
         begin
           snapshot = load_snapshot
@@ -89,8 +97,22 @@ module RubylodeWindmill
       snapshot
     end
 
+    # A cache that cannot be read or written (a file owned by another user, a full disk) is a miss, not an error.
+    def read_cache
+      @cache.read(self.class.cache_key_for(@configuration))
+    rescue StandardError => error
+      log_cache_problem("read", error)
+      nil
+    end
+
     def write_cache(value, seconds)
       @cache.write(self.class.cache_key_for(@configuration), value, expires_in: seconds) if seconds.positive?
+    rescue StandardError => error
+      log_cache_problem("write", error)
+    end
+
+    def log_cache_problem(action, error)
+      Rails.logger.warn("Rubylode Windmill: cache #{action} failed, carrying on without it: #{error.class}: #{error.message}")
     end
 
     def failure_reason_from(marker)

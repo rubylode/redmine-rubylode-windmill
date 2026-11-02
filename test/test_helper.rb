@@ -16,6 +16,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 require File.expand_path("../../../test/test_helper", __dir__)
+require "logger"
+require "stringio"
 require_relative "support/fake_windmill_server"
 
 module RubylodeWindmillTestHelpers
@@ -53,6 +55,38 @@ module RubylodeWindmillTestHelpers
 
   def restore_cache
     RubylodeWindmill::WindmillStatus.cache = @original_cache
+  end
+
+  # A cache store that fails the way a cache file owned by another user does.
+  class UnwritableCache
+    def initialize(read: true, write: true)
+      @fail_read = read
+      @fail_write = write
+    end
+
+    def read(*)
+      raise Errno::EACCES, "@ apply2files - /var/cache/entry" if @fail_read
+    end
+
+    def write(*)
+      raise Errno::EACCES, "@ apply2files - /var/cache/entry" if @fail_write
+    end
+  end
+
+  # Runs the block with Rails.logger writing into a string, and returns that string.
+  def captured_log
+    output = StringIO.new
+    replacing_method(Rails, :logger, ->(*) { Logger.new(output) }) { yield }
+    output.string
+  end
+
+  # Minitest 6 ships without stubs, so a singleton method is swapped by hand for the length of the block.
+  def replacing_method(target, name, replacement)
+    original = target.method(name)
+    target.define_singleton_method(name) { |*arguments, &block| replacement.call(*arguments, &block) }
+    yield
+  ensure
+    target.define_singleton_method(name) { |*arguments, &block| original.call(*arguments, &block) }
   end
 
   # Starts the fake Windmill, puts its address and token into the settings and the environment, and cleans up after.

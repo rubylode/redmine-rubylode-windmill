@@ -4,6 +4,12 @@ All notable changes to this plugin. The format follows [Keep a Changelog](https:
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-02
+
+### Fixed
+
+- A cache that cannot be read or written (for example a cache file owned by another user) no longer breaks the page: the problem is logged as a warning and the block is built from a live fetch, or shows "Status unavailable".
+
 ## [0.1.0] - 2026-11-01
 
 First version. Redmine 7.0 and newer.
