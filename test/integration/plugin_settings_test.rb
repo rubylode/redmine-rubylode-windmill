@@ -146,4 +146,14 @@ class RubylodeWindmill::PluginSettingsHelpTest < Redmine::IntegrationTest
     assert_response :unprocessable_entity
     assert_select "#errorExplanation li", text: /line 1/
   end
+
+  test "the plugin shows its project address and author on the Plugins page" do
+    plugin = Redmine::Plugin.find(:redmine_rubylode_windmill)
+    readme = File.read(File.expand_path("../../README.md", __dir__))
+    repository_name = readme[%r{git clone https://github\.com/rubylode/([\w-]+)\.git}, 1]
+    assert_equal "redmine-rubylode-windmill", repository_name
+    assert_equal "https://github.com/rubylode/#{repository_name}", plugin.url
+    assert_equal "Rubylode", plugin.author
+    assert_equal "https://github.com/rubylode", plugin.author_url
+  end
 end

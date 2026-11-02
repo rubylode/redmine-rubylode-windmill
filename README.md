@@ -12,7 +12,7 @@ A summary line says "Nothing needs attention" or "3 failing". Windmill is asked 
 
 ## Install
 
-1. Copy this folder to `plugins/redmine_rubylode_windmill` in your Redmine.
+1. Copy this folder to `plugins/redmine_rubylode_windmill` in your Redmine, or clone it there: `git clone https://github.com/rubylode/redmine-rubylode-windmill.git redmine_rubylode_windmill`.
 2. Create a Windmill API token (Account settings, Tokens) for a user who can read the workspace's runs and schedules, and put it in the environment of the Redmine process, for example `WINDMILL_API_TOKEN` (see Security).
 3. Restart Redmine.
 4. Open Administration, Plugins, Rubylode Windmill, Configure. Fill in the Windmill address and the workspace id.
@@ -175,6 +175,8 @@ Minitest. The rule, the cron reading, the schedule check, the path matcher, the 
 ## Releasing
 
 Push a `vX.Y.Z` tag whose version matches `version` in `init.rb` and has an entry in `CHANGELOG.md`. CI runs the tests, builds `redmine_rubylode_windmill-X.Y.Z.zip` and publishes the GitHub release with the changelog entry as its notes. To build a release for a tag that already exists, use Actions, release, Run workflow.
+
+The text to paste when listing the plugin on www.redmine.org, and how to read the result of Check for updates, is in [docs/redmine-org-listing.md](docs/redmine-org-listing.md).
 
 ## License
 
