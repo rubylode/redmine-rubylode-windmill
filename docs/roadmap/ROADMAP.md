@@ -2,20 +2,19 @@
 
 ## Goal
 
-Show the state of a Windmill workspace inside Redmine: the failed runs that may need attention and the latest run of chosen schedules, without storing the token and without breaking a page when Windmill is down.
+Show the state of a Windmill workspace inside Redmine: the failed runs that may need attention and the latest run of chosen schedules. The token is never stored, and a page does not break when Windmill is down.
 
 ## Decisions
 
-- **Needs attention** is a failed run in the look-back window with no later successful run of the same script or flow path. One row per path. See the README for the exact rule.
-- **Read-only, one workspace.** Only GET requests; the workspace is a setting.
-- **Token** from an environment variable whose name must start with `WINDMILL_`, bound to the saved host, https required except for localhost or an explicit tick, no redirects to other hosts.
-- **Late schedules** come from the schedule's own cron expression (the last moment it should have fired), not from a typed interval. An unreadable expression means "interval unknown", never "late".
-- The family of status plugins (this one and the Uptime Kuma one) share setting names for the placements and for the token rules.
+- A run needs attention when it failed in the look-back window and no later run of the same script or flow path has succeeded. One row per path. The README has the exact rule.
+- Read-only, one workspace: only GET requests, and the workspace is a setting.
+- The token comes from an environment variable whose name must start with `WINDMILL_`. It is bound to the saved host, needs https except for localhost or an explicit tick, and is never sent along a redirect to another host.
+- A late schedule is judged from the schedule's own cron expression (the last moment it should have fired), not from a typed interval. An unreadable expression means "interval unknown", never "late".
 
 ## Done (0.1.0)
 
-- Block, macro, page, My page block, partial (with a compact variant), placements, top menu link.
-- Settings with validation, host-bound token, fake Windmill, demo, browser check, tests, screenshots.
+- The block, the macro, the page, the My page block, the partial (with a compact variant), the placements and the top menu link.
+- Settings with validation, the host-bound token, a fake Windmill, a demo, a browser check, tests and screenshots.
 
 ## Ideas, not decided
 

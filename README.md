@@ -1,8 +1,10 @@
 # Rubylode Windmill
 
-A Redmine plugin (Redmine 7 and up) that shows the state of a [Windmill](https://www.windmill.dev) workspace: the recent failed runs of scripts and flows that may need attention, and the latest run of the schedules you choose to watch. It is a block you can put on a wiki page, on a page of its own, on My page, on the welcome page, on a project's Overview, under chosen pages, or in another plugin's view.
+Rubylode Windmill is a Redmine 7 plugin that shows the state of a [Windmill](https://www.windmill.dev) workspace: the recent failed runs of scripts and flows that may need attention, and the latest run of the schedules you choose to watch.
 
-A summary line says "Nothing needs attention" or "3 failing". Windmill is asked once per cache window, not once per page view. When Windmill cannot be reached the block says "Status unavailable" and the page around it renders as usual.
+The block goes on a wiki page, a page of its own, My page, the welcome page, a project's Overview, the bottom of chosen pages, or another plugin's view. A summary line says "Nothing needs attention" or "3 failing". Windmill is asked once per cache window, not once per page view. When it cannot be reached the block says "Status unavailable" and the rest of the page renders as usual.
+
+Status: version 1.0.0, tested on Redmine 7.0.2 only. `docs/roadmap/ROADMAP.md` lists what is decided and what is still open.
 
 ![Failures that still need attention, and the watched schedules](docs/screenshots/status-failures.png)
 
@@ -39,7 +41,7 @@ Everything except the token is a plugin setting.
 | Cache seconds | 60 | Windmill is asked at most once in this time. |
 | Failure cache seconds | 30 | After a failed answer Windmill is left alone for this long. |
 | Timeout seconds | 2 | Connect and read timeout of each request to Windmill. |
-| Show the block on ... | all off | Placements, see below. |
+| Show the block on | all off | Placements, see below. |
 
 Example watched schedules:
 
@@ -50,7 +52,7 @@ Hourly metrics | f/reports/hourly_metrics | Refreshes the dashboard every hour
 
 ## The "needs attention" rule
 
-A failed run in the look-back window **needs attention** when no later run of the same script or flow path has succeeded. "Later" means it started after the failed run started.
+A failed run in the look-back window needs attention when no later run of the same script or flow path has succeeded. "Later" means it started after the failed run started.
 
 - Only runs of scripts and flows count. The steps inside a flow are left out (the flow itself is what you act on).
 - A path that failed several times is one row, for its latest failure, with the number of failures (`x2`).
@@ -58,7 +60,7 @@ A failed run in the look-back window **needs attention** when no later run of th
 - Each row shows the path, the kind (script or flow), when it failed, a short error (the first line of Windmill's error message, cut at 200 characters) and a link to the run in Windmill.
 - The summary counts rows: "3 failing". Rows beyond the maximum are counted, with a link to Windmill's runs page.
 
-A **watched schedule** shows the result and time of its latest run (success or failure). It is also flagged **"Not run since its expected time"** when the schedule is enabled, its cron expression is understood, and it should have fired by now (two minutes allowed to start) but its latest run is older than that moment, or there is no run at all. When the cron expression cannot be read the expected interval is unknown and the schedule is never flagged late. A paused (disabled) schedule is never flagged late and says "Paused". A schedule that is not found in Windmill says so.
+A watched schedule shows the result and time of its latest run (success or failure). It is also flagged "Not run since its expected time" when the schedule is enabled, its cron expression is understood, and it should have fired by now (two minutes allowed to start) but its latest run is older than that moment, or there is no run at all. When the cron expression cannot be read the expected interval is unknown and the schedule is never flagged late. A paused (disabled) schedule is never flagged late and says "Paused". A schedule that is not found in Windmill says so.
 
 The summary adds watched schedules that need a look (last run failed, or late): "1 failing, 1 schedule needs a look".
 
@@ -97,13 +99,13 @@ The top menu entry is a plugin menu item (`menu :top_menu, ...` in `init.rb`, th
 
 ## Security
 
-The plugin sends a secret to an address an administrator typed, so it is tightened on purpose:
+The plugin sends a secret to an address an administrator typed, so the rules are strict:
 
-- **The token is never stored.** It is read from an environment variable when the request is made. It is not in the database, not rendered in any page (the settings page only says whether the variable is set), not logged, and scrubbed from error messages.
-- **Only `WINDMILL_*` variables can be named.** The setting cannot point the plugin at `SECRET_KEY_BASE` or a database password. Another name is rejected on save, and ignored at run time (the token counts as missing and no variable is read).
-- **The token is bound to a host.** It is sent only to the host (and port) of the saved Windmill address, plus any host you list as allowed. Any other destination is refused before a request is made.
-- **A redirect is followed only to such a host**, over a permitted scheme, at most three times. A redirect anywhere else is refused before a byte is sent there.
-- **https is required**, except for this machine (`localhost`, `127.0.0.1`, `::1`) or when an administrator ticks "Allow plain http". A bearer token over plain http can be read by anyone on the path, so the tick is a deliberate choice for a network you trust.
+- The token is never stored. It is read from an environment variable when the request is made. It is not in the database, not rendered in any page (the settings page only says whether the variable is set), not logged, and scrubbed from error messages.
+- Only `WINDMILL_*` variables can be named. The setting cannot point the plugin at `SECRET_KEY_BASE` or a database password. Another name is rejected on save, and ignored at run time (the token counts as missing and no variable is read).
+- The token is bound to a host. It is sent only to the host (and port) of the saved Windmill address, plus any host you list as allowed. Any other destination is refused before a request is made.
+- A redirect is followed only to such a host, over a permitted scheme, at most three times. A redirect anywhere else is refused before a byte is sent there.
+- https is required, except for this machine (`localhost`, `127.0.0.1`, `::1`) or when an administrator ticks "Allow plain http". A bearer token over plain http can be read by anyone on the path, so the tick is a deliberate choice for a network you trust.
 - The plugin only issues GET requests. Give its token the least access Windmill allows: reading runs and schedules.
 - Who sees the block is a setting, and the status can be limited to administrators. Error messages from failed runs can hold details of your jobs; limit the block to the people who may see them.
 
@@ -161,7 +163,7 @@ Sign in as `admin` / `admin` (sees the settings and the hints) or `dana` / `demo
 
 ## Troubleshooting
 
-- **A cache problem never breaks the page.** If the cache store cannot be read or written (a cache file owned by another user, a full disk), the plugin logs a warning with the error class and message, treats it as an empty cache and fetches live; the page still answers.
+If the cache store cannot be read or written (a cache file owned by another user, a full disk), the plugin logs a warning with the error class and message, treats the cache as empty and fetches live. The page still renders.
 
 ## Tests
 
@@ -170,7 +172,9 @@ ruby bin/test                                 # whole suite, in a Redmine 7 Dock
 ruby bin/test test/unit/attention_rule_test.rb
 ```
 
-Minitest. The rule, the cron reading, the schedule check, the path matcher, the client and the status report are plain Ruby classes with unit tests. The integration tests start the fake Windmill on a local port, including two of them to prove the token never reaches a second server, and run a hostile error message through the page.
+Minitest. The rule, the cron reading, the schedule check, the path matcher, the client and the status report are plain Ruby classes with unit tests. The integration tests start the fake Windmill on a local port (two of them, to check that the token never reaches a second server) and run a hostile error message through the page.
+
+Pull Requests are welcome!
 
 ## Releasing
 
@@ -180,10 +184,8 @@ The text to paste when listing the plugin on www.redmine.org, and how to read th
 
 ## License
 
-GNU General Public License, version 2 or later. See `LICENSE`.
+GNU General Public License, version 2 or (at your option) any later version, the same as Redmine. See `LICENSE`.
 
-Copyright (C) 2026 Nick Gorbikoff. Each Ruby file carries the same short notice Redmine puts on its own.
+Copyright (C) 2026  Nick Gorbikoff
 
-## Disclaimer
-
-Use it at your own risk. It comes with no warranty of any kind, as the license says. The plugin writes nothing to the database apart from its own settings, and only reads from Windmill. Back up your Redmine database before you install anything, and try it on a test instance first. It has been tested on Redmine 7.0.2 and nothing else.
+No warranty, as the GPL says. The plugin only reads from Windmill and writes nothing to the database apart from its own settings. Try it on a copy of your tracker before the real one. I tested it on Redmine 7.0.2 and nothing else.
