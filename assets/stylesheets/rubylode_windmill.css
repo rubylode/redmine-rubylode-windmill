@@ -1,0 +1,229 @@
+/*
+ * Rubylode Windmill. Every colour and size is a custom property on .rubylode-windmill-status, so a theme restyles the
+ * block by setting them. Where the theme already has a variable (Redmine 7 ships --oc-* colours) the default follows it.
+ */
+.rubylode-windmill-status {
+  --rubylode-windmill-text: var(--oc-gray-9, #212529);
+  --rubylode-windmill-text-muted: var(--oc-gray-6, #6b7480);
+  --rubylode-windmill-border: var(--oc-gray-3, #dee2e6);
+  --rubylode-windmill-header-background: var(--oc-gray-1, #f1f3f5);
+  --rubylode-windmill-row-hover-background: var(--oc-gray-0, #f8f9fa);
+  --rubylode-windmill-success-color: var(--oc-green-8, #2b8a3e);
+  --rubylode-windmill-success-background: #e9f6ec;
+  --rubylode-windmill-failure-color: var(--oc-red-8, #c92a2a);
+  --rubylode-windmill-failure-background: #fdecec;
+  --rubylode-windmill-overdue-color: var(--oc-orange-9, #a15c07);
+  --rubylode-windmill-overdue-background: #fff4e0;
+  --rubylode-windmill-unknown-color: var(--oc-gray-6, #868e96);
+  --rubylode-windmill-link-color: var(--oc-blue-8, #1b4f80);
+  --rubylode-windmill-code-background: var(--oc-gray-1, #f1f3f5);
+  --rubylode-windmill-dot-size: 10px;
+  --rubylode-windmill-radius: 6px;
+  --rubylode-windmill-gap: 12px;
+  --rubylode-windmill-summary-font-size: 1.05em;
+  --rubylode-windmill-error-maximum-width: 36em;
+
+  color: var(--rubylode-windmill-text);
+  margin-bottom: var(--rubylode-windmill-gap);
+}
+
+@media (prefers-color-scheme: dark) {
+  .rubylode-windmill-status {
+    --rubylode-windmill-text: #e9ecef;
+    --rubylode-windmill-text-muted: #9aa3ad;
+    --rubylode-windmill-border: #3b4148;
+    --rubylode-windmill-header-background: #2a2f35;
+    --rubylode-windmill-row-hover-background: #242a30;
+    --rubylode-windmill-success-color: #69db7c;
+    --rubylode-windmill-success-background: #16301d;
+    --rubylode-windmill-failure-color: #ff8787;
+    --rubylode-windmill-failure-background: #3b1a1a;
+    --rubylode-windmill-overdue-color: #ffc078;
+    --rubylode-windmill-overdue-background: #3a2b12;
+    --rubylode-windmill-link-color: #74c0fc;
+    --rubylode-windmill-code-background: #2a2f35;
+  }
+}
+
+/* A theme that marks its dark mode on the page wins over the system setting. */
+:root[data-theme="dark"] .rubylode-windmill-status,
+:root[data-color-scheme="dark"] .rubylode-windmill-status,
+body.dark .rubylode-windmill-status {
+  --rubylode-windmill-text: #e9ecef;
+  --rubylode-windmill-text-muted: #9aa3ad;
+  --rubylode-windmill-border: #3b4148;
+  --rubylode-windmill-header-background: #2a2f35;
+  --rubylode-windmill-row-hover-background: #242a30;
+  --rubylode-windmill-success-color: #69db7c;
+  --rubylode-windmill-success-background: #16301d;
+  --rubylode-windmill-failure-color: #ff8787;
+  --rubylode-windmill-failure-background: #3b1a1a;
+  --rubylode-windmill-overdue-color: #ffc078;
+  --rubylode-windmill-overdue-background: #3a2b12;
+  --rubylode-windmill-link-color: #74c0fc;
+  --rubylode-windmill-code-background: #2a2f35;
+}
+
+.rubylode-windmill-status a {
+  color: var(--rubylode-windmill-link-color);
+}
+
+.rubylode-windmill-status-title {
+  margin: 0 0 6px;
+}
+
+.rubylode-windmill-status-heading {
+  margin: var(--rubylode-windmill-gap) 0 6px;
+}
+
+.rubylode-windmill-status-summary {
+  display: inline-block;
+  margin: 0 0 var(--rubylode-windmill-gap);
+  padding: 4px 12px;
+  border-radius: var(--rubylode-windmill-radius);
+  font-size: var(--rubylode-windmill-summary-font-size);
+  font-weight: 600;
+}
+
+.rubylode-windmill-status-summary.is-ok {
+  color: var(--rubylode-windmill-success-color);
+  background: var(--rubylode-windmill-success-background);
+}
+
+.rubylode-windmill-status-summary.is-attention {
+  color: var(--rubylode-windmill-failure-color);
+  background: var(--rubylode-windmill-failure-background);
+}
+
+.rubylode-windmill-status-summary.is-unavailable {
+  color: var(--rubylode-windmill-overdue-color);
+  background: var(--rubylode-windmill-overdue-background);
+}
+
+.rubylode-windmill-status-hint {
+  margin: 0 0 var(--rubylode-windmill-gap);
+  color: var(--rubylode-windmill-text-muted);
+}
+
+.rubylode-windmill-status .rubylode-windmill-status-table {
+  width: 100%;
+  border: 1px solid var(--rubylode-windmill-border);
+  border-collapse: collapse;
+  background: transparent;
+}
+
+.rubylode-windmill-status .rubylode-windmill-status-table th,
+.rubylode-windmill-status .rubylode-windmill-status-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--rubylode-windmill-border);
+  text-align: left;
+  vertical-align: top;
+  color: var(--rubylode-windmill-text);
+}
+
+.rubylode-windmill-status .rubylode-windmill-status-table thead th {
+  background: var(--rubylode-windmill-header-background);
+}
+
+.rubylode-windmill-status .rubylode-windmill-status-table tbody tr:hover td {
+  background: var(--rubylode-windmill-row-hover-background);
+}
+
+.rubylode-windmill-status-path {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.92em;
+  word-break: break-all;
+}
+
+.rubylode-windmill-status-count {
+  color: var(--rubylode-windmill-text-muted);
+  font-family: inherit;
+}
+
+.rubylode-windmill-status-error {
+  max-width: var(--rubylode-windmill-error-maximum-width);
+  overflow-wrap: anywhere;
+  color: var(--rubylode-windmill-failure-color);
+}
+
+.rubylode-windmill-status .rubylode-windmill-status-table td.rubylode-windmill-status-description,
+.rubylode-windmill-status-kind {
+  color: var(--rubylode-windmill-text-muted);
+}
+
+.rubylode-windmill-status-time,
+.rubylode-windmill-status-state,
+.rubylode-windmill-status-run {
+  white-space: nowrap;
+}
+
+.rubylode-windmill-status-dot {
+  display: inline-block;
+  width: var(--rubylode-windmill-dot-size);
+  height: var(--rubylode-windmill-dot-size);
+  margin-right: 6px;
+  border-radius: 50%;
+  background: var(--rubylode-windmill-unknown-color);
+}
+
+.rubylode-windmill-status-row.is-success .rubylode-windmill-status-dot {
+  background: var(--rubylode-windmill-success-color);
+}
+
+.rubylode-windmill-status-row.is-failure .rubylode-windmill-status-dot {
+  background: var(--rubylode-windmill-failure-color);
+}
+
+.rubylode-windmill-status-row.is-overdue .rubylode-windmill-status-dot {
+  background: var(--rubylode-windmill-overdue-color);
+}
+
+.rubylode-windmill-status-row.is-failure .rubylode-windmill-status-state {
+  color: var(--rubylode-windmill-failure-color);
+  font-weight: 600;
+}
+
+.rubylode-windmill-status-flag {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 8px;
+  border-radius: var(--rubylode-windmill-radius);
+  color: var(--rubylode-windmill-overdue-color);
+  background: var(--rubylode-windmill-overdue-background);
+  font-size: 0.9em;
+}
+
+.rubylode-windmill-status-flag.is-muted {
+  color: var(--rubylode-windmill-text-muted);
+  background: var(--rubylode-windmill-code-background);
+}
+
+/* Under another page's content (the "pages matching these paths" setting) the block is a slim strip. */
+.rubylode-windmill-status.is-compact {
+  margin-top: var(--rubylode-windmill-gap);
+  padding-top: var(--rubylode-windmill-gap);
+  border-top: 1px solid var(--rubylode-windmill-border);
+}
+
+.rubylode-windmill-status.is-compact .rubylode-windmill-status-table th,
+.rubylode-windmill-status.is-compact .rubylode-windmill-status-table td {
+  padding: 3px 8px;
+}
+
+@media (max-width: 600px) {
+  .rubylode-windmill-status-table .rubylode-windmill-status-description,
+  .rubylode-windmill-status-table .rubylode-windmill-status-kind {
+    display: none;
+  }
+}
+
+/* The help under the settings: Redmine indents paragraphs and centres list cells inside its settings form. */
+#rubylode-windmill-help p {
+  padding-left: 0;
+  margin-left: 0;
+}
+
+#rubylode-windmill-help table.list th,
+#rubylode-windmill-help table.list td {
+  text-align: left;
+}

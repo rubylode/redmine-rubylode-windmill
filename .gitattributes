@@ -1,0 +1,10 @@
+# Left out of the release archive (git archive), so the plugin folder holds what Redmine needs.
+.github export-ignore
+.gitattributes export-ignore
+.devrc export-ignore
+Procfile.dev export-ignore
+docker export-ignore
+docker-compose.yml export-ignore
+docs/screenshots export-ignore
+script export-ignore
+package.json export-ignore

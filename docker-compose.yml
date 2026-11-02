@@ -1,0 +1,49 @@
+# A throwaway Redmine 7 to try the plugin in, with a fake Windmill next to it. Not a real tracker or a real Windmill.
+# Start: ruby bin/demo up, then open http://localhost:3015 (admin / admin).
+# The repository is mounted as the plugin, so a code change shows after "ruby bin/demo restart".
+# Wipe it: ruby bin/demo reset
+# Tests: ruby bin/test (runs the "test" service below)
+services:
+  redmine:
+    image: redmine:7.0.2
+    container_name: redmine-windmill-dev
+    ports:
+      - "127.0.0.1:3015:3000"
+    environment:
+      # The image ships without the development gems, so production is the mode it can boot in.
+      RAILS_ENV: production
+      # The name the plugin reads by default. The value is made up and only the fake Windmill below accepts it.
+      WINDMILL_API_TOKEN: demo-token-not-a-secret
+    depends_on:
+      - fake_windmill
+    volumes:
+      - .:/usr/src/redmine/plugins/redmine_rubylode_windmill
+      - redmine-windmill-files:/usr/src/redmine/files
+      - redmine-windmill-sqlite:/usr/src/redmine/sqlite
+
+  # Serves Windmill's REST answers for a workspace called "demo". Switch what it reports with: ruby bin/demo scenario all_green
+  fake_windmill:
+    image: redmine:7.0.2
+    container_name: fake-windmill-dev
+    ports:
+      - "127.0.0.1:9115:9100"
+    environment:
+      FAKE_WINDMILL_TOKEN: demo-token-not-a-secret
+      FAKE_WINDMILL_PORT: "9100"
+    command: ruby /plugin/test/support/fake_windmill_server.rb
+    volumes:
+      - .:/plugin:ro
+
+  test:
+    build:
+      context: .
+      dockerfile: docker/test.Dockerfile
+    profiles: ["test"]
+    environment:
+      RAILS_ENV: test
+    volumes:
+      - .:/usr/src/redmine/plugins/redmine_rubylode_windmill
+
+volumes:
+  redmine-windmill-files:
+  redmine-windmill-sqlite:

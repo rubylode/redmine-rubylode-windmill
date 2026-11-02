@@ -1,0 +1,96 @@
+<%# The status block. Other plugins can render it: render partial: "rubylode_windmill/status"
+    Optional locals: title (replaces the block title), show_title (false hides it), compact (true drops the
+    kind and description columns, for a strip under another page's content). It draws nothing for a person the
+    settings do not allow, and a hint for administrators while the plugin is not set up. Every string that comes from
+    Windmill is printed through ERB, which escapes it. %>
+<% configuration = RubylodeWindmill::Configuration.current %>
+<% if configuration.visible_to?(User.current) %>
+  <% content_for :header_tags, stylesheet_link_tag("rubylode_windmill", plugin: "redmine_rubylode_windmill") %>
+  <% block_title = local_assigns[:title].presence || configuration.block_title %>
+  <% show_title = local_assigns.fetch(:show_title, true) %>
+  <% compact = local_assigns.fetch(:compact, false) %>
+  <% if configuration.configured? %>
+    <% report = RubylodeWindmill::WindmillStatus.current(configuration).report %>
+    <% run_url = ->(run_id) { run_id.to_s.match?(/\A[0-9a-f-]{36}\z/i) ? "#{configuration.windmill_url}/run/#{run_id}?workspace=#{ERB::Util.url_encode(configuration.workspace_id)}" : nil } %>
+    <div class="rubylode-windmill-status<%= " is-compact" if compact %>">
+      <% if show_title %><h3 class="rubylode-windmill-status-title"><%= block_title %></h3><% end %>
+      <p class="rubylode-windmill-status-summary is-<%= report.summary_state.to_s.dasherize %>"><%= report.summary %></p>
+      <% if report.unavailable? && User.current.admin? %>
+        <p class="rubylode-windmill-status-hint"><%= l("rubylode_windmill.hints.reason", reason: report.failure_reason) %></p>
+      <% end %>
+
+      <% if report.shown_rows.any? %>
+        <h4 class="rubylode-windmill-status-heading"><%= l("rubylode_windmill.headings.needs_attention") %></h4>
+        <table class="list rubylode-windmill-status-table rubylode-windmill-failures">
+          <thead>
+            <tr>
+              <th><%= l("rubylode_windmill.columns.path") %></th>
+              <% unless compact %><th><%= l("rubylode_windmill.columns.kind") %></th><% end %>
+              <th><%= l("rubylode_windmill.columns.failed_at") %></th>
+              <th><%= l("rubylode_windmill.columns.error") %></th>
+              <th><%= l("rubylode_windmill.columns.run") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% report.shown_rows.each do |row| %>
+              <tr class="rubylode-windmill-status-row is-failed">
+                <td class="rubylode-windmill-status-path"><%= row.path %><% if row.failure_count > 1 %> <span class="rubylode-windmill-status-count">&times;<%= row.failure_count %></span><% end %></td>
+                <% unless compact %><td class="rubylode-windmill-status-kind"><%= l("rubylode_windmill.kinds.#{row.kind}") %></td><% end %>
+                <td class="rubylode-windmill-status-time"><%= format_time(row.failed_at) %></td>
+                <td class="rubylode-windmill-status-error"><%= row.error %></td>
+                <td class="rubylode-windmill-status-run"><%= link_to_if run_url.call(row.run_id), l("rubylode_windmill.columns.open_run"), run_url.call(row.run_id) %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+        <% if report.hidden_count.positive? %>
+          <p class="rubylode-windmill-status-hint"><%= l("rubylode_windmill.hints.more_failing", count: report.hidden_count) %>
+            <%= link_to l("rubylode_windmill.hints.open_runs"), "#{configuration.windmill_url}/runs?workspace=#{ERB::Util.url_encode(configuration.workspace_id)}" %></p>
+        <% end %>
+      <% end %>
+
+      <% if report.schedules.any? %>
+        <h4 class="rubylode-windmill-status-heading"><%= l("rubylode_windmill.headings.schedules") %></h4>
+        <table class="list rubylode-windmill-status-table rubylode-windmill-schedules">
+          <thead>
+            <tr>
+              <th><%= l("rubylode_windmill.columns.schedule") %></th>
+              <% unless compact %><th><%= l("rubylode_windmill.columns.description") %></th><% end %>
+              <th><%= l("rubylode_windmill.columns.last_run") %></th>
+              <th><%= l("rubylode_windmill.columns.result") %></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% report.schedules.each do |schedule| %>
+              <% verdict = schedule.verdict %>
+              <% state = if schedule.unreadable then "unknown" elsif !schedule.found then "missing" elsif verdict.overdue? then "overdue" else verdict.last_result.to_s end %>
+              <tr class="rubylode-windmill-status-row is-<%= state %>">
+                <td class="rubylode-windmill-status-name"><%= schedule.name %></td>
+                <% unless compact %><td class="rubylode-windmill-status-description"><%= schedule.description %></td><% end %>
+                <td class="rubylode-windmill-status-time"><%= verdict&.last_run_at ? link_to_if(run_url.call(schedule.last_run_id), format_time(verdict.last_run_at), run_url.call(schedule.last_run_id)) : l("rubylode_windmill.status.never") %></td>
+                <td class="rubylode-windmill-status-state">
+                  <span class="rubylode-windmill-status-dot" aria-hidden="true"></span>
+                  <% if state == "unknown" || state == "missing" %>
+                    <%= l("rubylode_windmill.status.#{state}") %>
+                  <% else %>
+                    <%= l("rubylode_windmill.status.#{verdict.last_result}") %>
+                    <% if verdict.overdue? %><span class="rubylode-windmill-status-flag"><%= l("rubylode_windmill.status.overdue") %></span><% end %>
+                    <% unless verdict.enabled %><span class="rubylode-windmill-status-flag is-muted"><%= l("rubylode_windmill.status.paused") %></span><% end %>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+    </div>
+  <% elsif User.current.admin? %>
+    <div class="rubylode-windmill-status<%= " is-compact" if compact %>">
+      <% if show_title %><h3 class="rubylode-windmill-status-title"><%= block_title %></h3><% end %>
+      <p class="rubylode-windmill-status-hint">
+        <%= l("rubylode_windmill.hints.not_configured") %>
+        <%= link_to l("rubylode_windmill.hints.not_configured_link"), plugin_settings_path(RedmineRubylodeWindmill::PLUGIN_ID.to_s) %>
+      </p>
+    </div>
+  <% end %>
+<% end %>

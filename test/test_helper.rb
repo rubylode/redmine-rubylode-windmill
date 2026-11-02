@@ -1,0 +1,75 @@
+# Rubylode Windmill: the state of a Windmill workspace in Redmine
+# Copyright (C) 2026  Nick Gorbikoff
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+require File.expand_path("../../../test/test_helper", __dir__)
+require_relative "support/fake_windmill_server"
+
+module RubylodeWindmillTestHelpers
+  PLUGIN_ID = RedmineRubylodeWindmill::PLUGIN_ID
+  TOKEN_VARIABLE = "WINDMILL_TEST_TOKEN".freeze
+
+  SAMPLE_SCHEDULES = <<~TEXT.freeze
+    Nightly sync | f/billing/nightly_sync | Copies invoices at 02:00
+    Hourly metrics | f/reports/hourly_metrics | Refreshes the dashboard
+    Heartbeat | f/ops/heartbeat | Pings the office
+  TEXT
+
+  def configuration_with(overrides = {})
+    RubylodeWindmill::Configuration.new(
+      RedmineRubylodeWindmill::Defaults::SETTINGS.merge(
+        "windmill_url" => "https://windmill.example.com", "workspace_id" => "demo"
+      ).merge(overrides.transform_keys(&:to_s))
+    )
+  end
+
+  def configure_plugin(overrides = {})
+    settings = RedmineRubylodeWindmill::Defaults::SETTINGS.merge(
+      "windmill_url" => "https://windmill.example.com",
+      "workspace_id" => "demo",
+      "token_environment_variable" => TOKEN_VARIABLE,
+      "watched_schedules" => SAMPLE_SCHEDULES
+    ).merge(overrides.transform_keys(&:to_s))
+    Setting.send(:"plugin_#{PLUGIN_ID}=", settings)
+  end
+
+  def use_memory_cache
+    @original_cache = RubylodeWindmill::WindmillStatus.cache
+    RubylodeWindmill::WindmillStatus.cache = ActiveSupport::Cache::MemoryStore.new
+  end
+
+  def restore_cache
+    RubylodeWindmill::WindmillStatus.cache = @original_cache
+  end
+
+  # Starts the fake Windmill, puts its address and token into the settings and the environment, and cleans up after.
+  def start_fake_windmill(scenario: "failures", token: "sample-token-DO-NOT-LEAK-7f3a91", **overrides)
+    @fake_windmill = FakeWindmillServer.new(token: token, scenario: scenario).start
+    @fake_token = token
+    ENV[TOKEN_VARIABLE] = token
+    configure_plugin({ "windmill_url" => @fake_windmill.base_url }.merge(overrides))
+  end
+
+  def stop_fake_windmill
+    ENV.delete(TOKEN_VARIABLE)
+    @fake_windmill&.stop
+  end
+
+  def at_hour(hour_utc, minute = 30)
+    now = Time.now.utc
+    Time.utc(now.year, now.month, now.day, hour_utc, minute, 0)
+  end
+end
