@@ -24,7 +24,7 @@ Redmine::Plugin.register :redmine_rubylode_windmill do
   author_url "https://github.com/rubylode"
   url "https://github.com/rubylode/redmine-rubylode-windmill"
   description "The state of a Windmill workspace in Redmine: failed runs that need attention and the latest run of chosen schedules, as a wiki macro, a page, a My page block and a partial"
-  version "1.0.0"
+  version "1.0.1"
   requires_redmine version_or_higher: "7.0.0"
 
   menu :top_menu, :rubylode_windmill_status, { controller: "rubylode_windmill_status", action: "show" },

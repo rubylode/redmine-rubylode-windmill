@@ -4,6 +4,18 @@ All notable changes to this plugin. The format follows [Keep a Changelog](https:
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-03
+
+### Added
+
+- Show a Rubylode thumbnail at the top of the README.
+
+### Changed
+
+- Make the README plainer and add a licence section.
+- Word the changelog entries more plainly.
+- Write the checksum file inside the build step of the release job.
+
 ## [1.0.0] - 2026-11-02
 
 First stable release.
