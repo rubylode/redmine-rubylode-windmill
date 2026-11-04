@@ -4,6 +4,13 @@ All notable changes to this plugin. The format follows [Keep a Changelog](https:
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-04
+
+### Changed
+
+- Needs Redmine 5.1 or newer instead of 5.0. Redmine 5.0 cannot be tested in CI (the sqlite3 gem it pins does not build
+  there), and this plugin only claims what CI verifies. No code changed.
+
 ## [1.1.0] - 2026-11-04
 
 ### Changed

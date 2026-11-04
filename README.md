@@ -2,11 +2,11 @@
 
 <p><img src="docs/thumbnail.png" alt="Rubylode Windmill plugin" width="160"></p>
 
-Rubylode Windmill is a plugin for Redmine 5.0 or newer that shows the state of a [Windmill](https://www.windmill.dev) workspace: the recent failed runs of scripts and flows that may need attention, and the latest run of the schedules you choose to watch.
+Rubylode Windmill is a plugin for Redmine 5.1 or newer that shows the state of a [Windmill](https://www.windmill.dev) workspace: the recent failed runs of scripts and flows that may need attention, and the latest run of the schedules you choose to watch.
 
 The block goes on a wiki page, a page of its own, My page, the welcome page, a project's Overview, the bottom of chosen pages, or another plugin's view. A summary line says "Nothing needs attention" or "3 failing". Windmill is asked once per cache window, not once per page view. When it cannot be reached the block says "Status unavailable" and the rest of the page renders as usual.
 
-Status: version 1.1.0, needs Redmine 5.0 or newer, tested in CI with the Rubylode plugins' own test suites on Redmine 7.0, 6.1, 6.0, 5.1 and 5.0. `docs/roadmap/ROADMAP.md` lists what is decided and what is still open.
+Status: version 1.1.1, needs Redmine 5.1 or newer, tested in CI with the Rubylode plugins' own test suites on Redmine 7.0, 6.1, 6.0 and 5.1. `docs/roadmap/ROADMAP.md` lists what is decided and what is still open.
 
 ![Failures that still need attention, and the watched schedules](docs/screenshots/status-failures.png)
 
@@ -190,4 +190,4 @@ GNU General Public License, version 2 or (at your option) any later version, the
 
 Copyright (C) 2026  Nick Gorbikoff
 
-No warranty, as the GPL says. The plugin only reads from Windmill and writes nothing to the database apart from its own settings. Try it on a copy of your tracker before the real one. I tested it in CI with the Rubylode plugins' own test suites on Redmine 7.0, 6.1, 6.0, 5.1 and 5.0.
+No warranty, as the GPL says. The plugin only reads from Windmill and writes nothing to the database apart from its own settings. Try it on a copy of your tracker before the real one. I tested it in CI with the Rubylode plugins' own test suites on Redmine 7.0, 6.1, 6.0 and 5.1.
