@@ -2,6 +2,13 @@
 
 <p><img src="docs/thumbnail.png" alt="Rubylode Windmill plugin" width="160"></p>
 
+[![tests](https://img.shields.io/github/actions/workflow/status/rubylode/redmine-rubylode-windmill/tests.yml?branch=main&label=tests)](https://github.com/rubylode/redmine-rubylode-windmill/actions/workflows/tests.yml)
+[![security](https://img.shields.io/github/actions/workflow/status/rubylode/redmine-rubylode-windmill/security.yml?branch=main&label=security)](https://github.com/rubylode/redmine-rubylode-windmill/actions/workflows/security.yml)
+[![version](https://img.shields.io/github/v/tag/rubylode/redmine-rubylode-windmill?sort=semver&label=version)](https://github.com/rubylode/redmine-rubylode-windmill/tags)
+[![license](https://img.shields.io/github/license/rubylode/redmine-rubylode-windmill)](https://github.com/rubylode/redmine-rubylode-windmill/blob/main/LICENSE)
+![Redmine](https://img.shields.io/badge/Redmine-5.1%20%7C%206.0%20%7C%206.1%20%7C%207.0-b22222)
+![Ruby](https://img.shields.io/badge/Ruby-3.2%20%7C%203.3%20%7C%203.4%20%7C%204.0-cc342d)
+
 Rubylode Windmill is a plugin for Redmine 5.1 or newer that shows the state of a [Windmill](https://www.windmill.dev) workspace: the recent failed runs of scripts and flows that may need attention, and the latest run of the schedules you choose to watch.
 
 The block goes on a wiki page, a page of its own, My page, the welcome page, a project's Overview, the bottom of chosen pages, or another plugin's view. A summary line says "Nothing needs attention" or "3 failing". Windmill is asked once per cache window, not once per page view. When it cannot be reached the block says "Status unavailable" and the rest of the page renders as usual.
