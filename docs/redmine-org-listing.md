@@ -5,25 +5,25 @@ The text to paste at www.redmine.org, Plugins, New plugin. Redmine's "Check for 
 | Field | Value |
 |---|---|
 | Name | Rubylode Windmill |
-| Short description | The state of a Windmill workspace in Redmine: failed runs that need attention and the latest run of chosen schedules, as a wiki macro, a page, a My page block and a partial |
+| Short description | Shows failed Windmill runs that need attention and the latest run of chosen schedules, as a wiki macro, a page, a My page block and a partial |
 | Homepage | https://github.com/rubylode/redmine-rubylode-windmill |
 | Compatible with | Redmine 5.1.x, 6.0.x, 6.1.x, 7.0.x |
 | License | GNU General Public License, version 2 or (at your option) any later version |
 | Author | Rubylode |
 
-## Notes for the first version
+## Notes for the current version
 
-Version 1.1.1. The state of a Windmill workspace in Redmine: failed runs that need attention and the latest run of chosen schedules, as a wiki macro, a page, a My page block and a partial. Needs Redmine 5.1 or newer. Install and settings are described in the README at https://github.com/rubylode/redmine-rubylode-windmill.
+Version 2.0.0. Shows failed Windmill runs that need attention and the latest run of chosen schedules, as a wiki macro, a page, a My page block and a partial. Needs Redmine 5.1 or newer. Run the plugin migration when upgrading from 1.x. Install and settings are described in the README at https://github.com/rubylode/redmine-rubylode-windmill.
 
 ## File to upload
 
-`redmine_rubylode_windmill-1.1.1.zip`, the file the GitHub release workflow publishes when a `v1.1.1` tag is pushed. Upload the same file that is attached to the GitHub release.
+`redmine_rubylode_windmill-2.0.0.zip`, the file the GitHub release workflow publishes when a `v2.0.0` tag is pushed. Upload the same file that is attached to the GitHub release.
 
 ## Checking the result
 
-The name, author and version in the listing must match what the plugin registers (`Rubylode Windmill`, `Rubylode`, `1.1.1`). When they do, Administration, Plugins, Check for updates shows:
+The name, author and version in the listing must match what the plugin registers (`Rubylode Windmill`, `Rubylode`, `2.0.0`). When they do, Administration, Plugins, Check for updates shows:
 
-- a green tick: the installed version is the latest one listed on redmine.org;
+- a green check mark: the installed version is the latest one listed on redmine.org;
 - an amber warning: redmine.org lists a newer version than the installed one;
 - a grey question mark: the plugin is not found, so the name or the listing needs a look.
 

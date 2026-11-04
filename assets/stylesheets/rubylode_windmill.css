@@ -1,6 +1,6 @@
 /*
- * Rubylode Windmill. Every colour and size is a custom property on .rubylode-windmill-status, so a theme restyles the
- * block by setting them. Where the theme already has a variable (Redmine 7 ships --oc-* colours) the default follows it.
+ * Rubylode Windmill. Every color and size is a custom property on .rubylode-windmill-status, so a theme restyles the
+ * block by setting them. Where the theme already has a variable (Redmine 7 ships --oc-* colors) the default follows it.
  */
 .rubylode-windmill-status {
   --rubylode-windmill-text: var(--oc-gray-9, #212529);
