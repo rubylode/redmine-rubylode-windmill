@@ -10,7 +10,7 @@
 #   ruby bin/demo down               stop them, keep the data
 #   ruby bin/demo reset              stop them and wipe the data
 #
-# Sign in as admin / admin, or as dana with demo-password-1. The status is at http://localhost:3015/windmill_status
+# Sign in as admin / admin, or as dana with demo-password-1. The status is at http://localhost:3015/status/windmill
 # (the settings cache an answer for 5 seconds in the demo, so a new scenario shows after a few seconds).
 require "net/http"
 
