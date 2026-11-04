@@ -53,3 +53,8 @@ apply_settings_controller_patch = lambda do
 end
 apply_settings_controller_patch.call
 Rails.configuration.to_prepare(&apply_settings_controller_patch)
+
+# Puts the block on the Status page when Rubylode Status is installed. See its docs/widget-contract.md.
+Rails.application.config.after_initialize do
+  RubylodeWindmill::StatusWidget.register_with_status_plugin
+end
