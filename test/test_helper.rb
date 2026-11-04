@@ -21,7 +21,7 @@ require "stringio"
 require_relative "support/fake_windmill_server"
 
 module RubylodeWindmillTestHelpers
-  PLUGIN_ID = RedmineRubylodeWindmill::PLUGIN_ID
+  PLUGIN_ID = RubylodeWindmill::Settings::PLUGIN_ID
   TOKEN_VARIABLE = "WINDMILL_TEST_TOKEN".freeze
 
   SAMPLE_SCHEDULES = <<~TEXT.freeze
@@ -31,16 +31,16 @@ module RubylodeWindmillTestHelpers
   TEXT
 
   def configuration_with(overrides = {})
-    RubylodeWindmill::Configuration.new(
-      RedmineRubylodeWindmill::Defaults::SETTINGS.merge(
-        "windmill_url" => "https://windmill.example.com", "workspace_id" => "demo"
+    RubylodeWindmill::Settings.new(
+      RubylodeWindmill::Settings::DEFAULTS.merge(
+        "base_url" => "https://windmill.example.com", "workspace_id" => "demo"
       ).merge(overrides.transform_keys(&:to_s))
     )
   end
 
   def configure_plugin(overrides = {})
-    settings = RedmineRubylodeWindmill::Defaults::SETTINGS.merge(
-      "windmill_url" => "https://windmill.example.com",
+    settings = RubylodeWindmill::Settings::DEFAULTS.merge(
+      "base_url" => "https://windmill.example.com",
       "workspace_id" => "demo",
       "token_environment_variable" => TOKEN_VARIABLE,
       "watched_schedules" => SAMPLE_SCHEDULES
@@ -94,12 +94,36 @@ module RubylodeWindmillTestHelpers
     @fake_windmill = FakeWindmillServer.new(token: token, scenario: scenario).start
     @fake_token = token
     ENV[TOKEN_VARIABLE] = token
-    configure_plugin({ "windmill_url" => @fake_windmill.base_url }.merge(overrides))
+    configure_plugin({ "base_url" => @fake_windmill.base_url }.merge(overrides))
   end
 
   def stop_fake_windmill
     ENV.delete(TOKEN_VARIABLE)
     @fake_windmill&.stop
+  end
+
+  # Stands in for the Status plugin: this plugin is tested alone, so the registry it would register with is a plain
+  # object that remembers the arguments. The real one is checked by the Status plugin's own tests.
+  def with_fake_status_registry
+    raise "RubylodeStatus is already defined" if defined?(RubylodeStatus)
+
+    installed = false
+    registry = Module.new do
+      @widgets = {}
+      class << self
+        attr_reader :widgets
+
+        def register(key:, title:, path:, data:, partial: nil, visibility: "logged_in")
+          @widgets[key.to_s] = { title: title, path: path, data: data, partial: partial, visibility: visibility }
+        end
+      end
+    end
+    Object.const_set(:RubylodeStatus, Module.new)
+    installed = true
+    RubylodeStatus.const_set(:Registry, registry)
+    yield registry
+  ensure
+    Object.send(:remove_const, :RubylodeStatus) if installed
   end
 
   def at_hour(hour_utc, minute = 30)

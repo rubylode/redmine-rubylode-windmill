@@ -21,12 +21,12 @@ class RubylodeWindmillStatusController < ApplicationController
   before_action :require_permission_to_see_status
 
   def show
-    @configuration = RubylodeWindmill::Configuration.current
+    @configuration = RubylodeWindmill::Settings.current
   end
 
   private
 
   def require_permission_to_see_status
-    deny_access unless RubylodeWindmill::Configuration.current.visible_to?(User.current)
+    deny_access unless RubylodeWindmill::Settings.current.visible_to?(User.current)
   end
 end

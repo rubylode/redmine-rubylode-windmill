@@ -129,7 +129,7 @@ module RubylodeWindmill
       raise Unavailable, token_missing_message if @token.empty?
       raise Unavailable, I18n.t("rubylode_windmill.errors.not_configured") unless @configuration.configured?
 
-      url = "#{@configuration.windmill_url}/api/w/#{segment(@configuration.workspace_id)}#{path}"
+      url = "#{@configuration.base_url}/api/w/#{segment(@configuration.workspace_id)}#{path}"
       url += "?#{URI.encode_www_form(query)}" unless query.empty?
       status, body = follow(url)
       return nil if status == 404 && accept_not_found

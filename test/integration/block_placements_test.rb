@@ -38,7 +38,7 @@ class RubylodeWindmill::BlockPlacementsTest < Redmine::IntegrationTest
   end
 
   def with_placement(overrides)
-    configure_plugin({ "windmill_url" => @fake_windmill.base_url }.merge(overrides))
+    configure_plugin({ "base_url" => @fake_windmill.base_url }.merge(overrides))
   end
 
   test "nothing extra is drawn on a fresh install" do
@@ -137,15 +137,28 @@ class RubylodeWindmill::BlockPlacementsTest < Redmine::IntegrationTest
     with_placement("show_in_top_menu" => "1")
     log_user("jsmith", "jsmith")
     get "/"
-    assert_select "#top-menu a[href=?]", "/windmill_status", text: "Windmill status"
+    assert_select "#top-menu a[href=?]", "/status/windmill", text: "Windmill"
+
+    with_placement("show_in_top_menu" => "1", "block_title" => "Automation")
+    get "/"
+    assert_select "#top-menu a[href=?]", "/status/windmill", text: "Automation"
 
     with_placement("show_in_top_menu" => "1", "visibility" => "admins")
     get "/"
-    assert_select "#top-menu a[href=?]", "/windmill_status", 0
+    assert_select "#top-menu a[href=?]", "/status/windmill", 0
 
     with_placement("show_in_top_menu" => "0")
     get "/"
-    assert_select "#top-menu a[href=?]", "/windmill_status", 0
+    assert_select "#top-menu a[href=?]", "/status/windmill", 0
+  end
+
+  test "the top menu link is dropped when the Status plugin is installed" do
+    with_placement("show_in_top_menu" => "1")
+    with_fake_status_registry do
+      log_user("jsmith", "jsmith")
+      get "/"
+      assert_select "#top-menu a[href=?]", "/status/windmill", 0
+    end
   end
 
   test "every placement honours the who-may-see-it setting" do

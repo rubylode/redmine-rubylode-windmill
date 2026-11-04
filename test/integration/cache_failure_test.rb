@@ -83,7 +83,7 @@ class RubylodeWindmill::CacheFailureTest < Redmine::IntegrationTest
   end
 
   test "the project overview answers 200 with status unavailable when the status object raises" do
-    configure_plugin("windmill_url" => @fake_windmill.base_url, "show_on_project_overview" => "1")
+    configure_plugin("base_url" => @fake_windmill.base_url, "show_on_project_overview" => "1")
 
     log_user("jsmith", "jsmith")
     raising_status { get "/projects/ecookbook" }
@@ -93,7 +93,7 @@ class RubylodeWindmill::CacheFailureTest < Redmine::IntegrationTest
   end
 
   test "a page on the path list answers 200 with status unavailable when the status object raises" do
-    configure_plugin("windmill_url" => @fake_windmill.base_url, "show_on_matching_pages" => "1", "matching_page_paths" => "/issues")
+    configure_plugin("base_url" => @fake_windmill.base_url, "show_on_matching_pages" => "1", "matching_page_paths" => "/issues")
 
     log_user("jsmith", "jsmith")
     raising_status { get "/issues" }
@@ -116,7 +116,7 @@ class RubylodeWindmill::CacheFailureTest < Redmine::IntegrationTest
 
   test "the standalone page answers 200 with status unavailable when the status object raises" do
     log_user("jsmith", "jsmith")
-    raising_status { get "/windmill_status" }
+    raising_status { get "/status/windmill" }
 
     assert_response :success
     assert_select "#{SUMMARY}.is-unavailable"
@@ -124,12 +124,12 @@ class RubylodeWindmill::CacheFailureTest < Redmine::IntegrationTest
 
   test "an administrator sees the class name of the error in the hint, others do not" do
     log_user("admin", "admin")
-    raising_status { get "/windmill_status" }
+    raising_status { get "/status/windmill" }
     assert_select ".rubylode-windmill-status-hint", text: /IOError/
 
     post "/logout"
     log_user("jsmith", "jsmith")
-    raising_status { get "/windmill_status" }
+    raising_status { get "/status/windmill" }
     assert_select ".rubylode-windmill-status-hint", 0
   end
 end

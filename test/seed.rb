@@ -64,8 +64,8 @@ ActiveRecord::Base.transaction do
   TEXTILE
   page.save!
 
-  Setting.send(:plugin_redmine_rubylode_windmill=, RedmineRubylodeWindmill::Defaults::SETTINGS.merge(
-    "windmill_url" => "http://fake_windmill:9100",
+  Setting.send(:plugin_redmine_rubylode_windmill=, RubylodeWindmill::Settings::DEFAULTS.merge(
+    "base_url" => "http://fake_windmill:9100",
     "allow_plain_http" => "1", # the fake Windmill is plain http on the demo network
     "workspace_id" => "demo",
     "show_in_top_menu" => "1",

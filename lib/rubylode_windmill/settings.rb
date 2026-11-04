@@ -19,7 +19,36 @@ module RubylodeWindmill
   # The plugin's settings, read with their defaults and clamped to sensible values. The token is not one of them:
   # only the NAME of the environment variable that holds it is a setting, and that name must start with WINDMILL_ so a
   # setting can never make the plugin read (and send out) some other secret of the server.
-  class Configuration
+  class Settings
+    PLUGIN_ID = :redmine_rubylode_windmill
+    SHORT_NAME = "windmill".freeze
+
+    # What a fresh install starts with.
+    DEFAULTS = {
+      "base_url" => "",
+      "workspace_id" => "",
+      "token_environment_variable" => "WINDMILL_API_TOKEN",
+      "allowed_hosts" => "",
+      "allow_plain_http" => "0",
+      "look_back_hours" => "24",
+      "maximum_rows" => "10",
+      "path_prefix" => "",
+      "watched_schedules" => "",
+      "cache_seconds" => "60",
+      "failure_cache_seconds" => "30",
+      "timeout_seconds" => "2",
+      "block_title" => "Windmill",
+      "show_on_welcome_page" => "0",
+      "welcome_page_column" => "right",
+      "show_on_my_page" => "0",
+      "show_on_project_overview" => "0",
+      "project_overview_column" => "right",
+      "show_on_matching_pages" => "0",
+      "matching_page_paths" => "",
+      "show_in_top_menu" => "0",
+      "visibility" => "logged_in"
+    }.freeze
+
     VISIBILITIES = %w[logged_in admins].freeze
     TOKEN_VARIABLE_PATTERN = /\AWINDMILL_[A-Z0-9_]*\z/
     WORKSPACE_PATTERN = /\A[A-Za-z0-9_-]+\z/
@@ -27,10 +56,16 @@ module RubylodeWindmill
     LOOPBACK_HOSTS = %w[localhost 127.0.0.1 ::1 [::1]].freeze
 
     def self.current
-      new(Setting.send(:"plugin_#{RedmineRubylodeWindmill::PLUGIN_ID}"))
+      new(Setting.send(:"plugin_#{PLUGIN_ID}"))
     end
 
-    def self.web_address?(value)
+# True when the Rubylode Status plugin is installed: the block is then on its page, and this plugin drops its own
+# top menu item and the setting for it.
+def self.status_plugin_installed?
+  defined?(RubylodeStatus::Registry) ? true : false
+end
+
+def self.web_address?(value)
       uri = URI.parse(value.to_s.strip)
       %w[http https].include?(uri.scheme) && !uri.host.to_s.empty?
     rescue URI::InvalidURIError
@@ -42,15 +77,15 @@ module RubylodeWindmill
     end
 
     def initialize(raw_settings = {})
-      @settings = RedmineRubylodeWindmill::Defaults::SETTINGS.merge((raw_settings || {}).to_h.stringify_keys.compact)
+      @settings = DEFAULTS.merge((raw_settings || {}).to_h.stringify_keys.compact)
     end
 
-    def windmill_url
-      @settings["windmill_url"].to_s.strip.chomp("/")
+    def base_url
+      @settings["base_url"].to_s.strip.chomp("/")
     end
 
     def windmill_host
-      URI.parse(windmill_url).host.to_s.downcase
+      URI.parse(base_url).host.to_s.downcase
     rescue URI::InvalidURIError
       ""
     end
@@ -63,7 +98,7 @@ module RubylodeWindmill
     # environment, so the token counts as missing.
     def token_environment_variable
       name = @settings["token_environment_variable"].to_s.strip
-      name = RedmineRubylodeWindmill::Defaults::SETTINGS["token_environment_variable"] if name.empty?
+      name = DEFAULTS["token_environment_variable"] if name.empty?
       name.match?(TOKEN_VARIABLE_PATTERN) ? name : nil
     end
 
@@ -87,7 +122,7 @@ def token_destination_allowed?(url)
   uri = URI.parse(url.to_s)
   host = uri.host.to_s.downcase
   host_allowed = if host == windmill_host
-    uri.port == URI.parse(windmill_url).port
+    uri.port == URI.parse(base_url).port
   else
     allowed_hosts.include?(host)
   end
@@ -142,7 +177,7 @@ def allow_plain_http?
 
     def block_title
       title = @settings["block_title"].to_s.strip
-      title.empty? ? RedmineRubylodeWindmill::Defaults::SETTINGS["block_title"] : title
+      title.empty? ? DEFAULTS["block_title"] : title
     end
 
 COLUMNS = %w[left right].freeze
@@ -190,12 +225,12 @@ end
     end
 
     def configured?
-      !windmill_url.empty? && !workspace_id.empty?
+      !base_url.empty? && !workspace_id.empty?
     end
 
     # Changes whenever a setting that changes the answer changes, so cached answers never outlive their settings.
     def cache_fingerprint
-      Digest::SHA256.hexdigest([windmill_url, workspace_id, look_back_hours, maximum_rows, path_prefix, watched_schedules_text].join("\u0000"))[0, 16]
+      Digest::SHA256.hexdigest([base_url, workspace_id, look_back_hours, maximum_rows, path_prefix, watched_schedules_text].join("\u0000"))[0, 16]
     end
 
     private
@@ -212,7 +247,7 @@ end
       value = Integer(@settings[key].to_s.strip, 10)
       [value, minimum].max
     rescue ArgumentError
-      Integer(RedmineRubylodeWindmill::Defaults::SETTINGS[key], 10)
+      Integer(DEFAULTS[key], 10)
     end
   end
 end

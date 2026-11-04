@@ -50,14 +50,14 @@ module RubylodeWindmill
       end
 
       # The report for a page. Whatever goes wrong while building it, the page gets a "status unavailable" report and never an error.
-      def safe_report(configuration = Configuration.current)
+      def safe_report(configuration = Settings.current)
         current(configuration).report
       rescue StandardError => error
         Rails.logger.warn("Rubylode Windmill: could not build the status block: #{error.class}: #{error.message}")
         Report.new([], [], 0, [], I18n.t("rubylode_windmill.status.unavailable"), :unavailable, true, error.class.name)
       end
 
-      def current(configuration = Configuration.current)
+      def current(configuration = Settings.current)
         new(configuration: configuration, cache: cache)
       end
     end

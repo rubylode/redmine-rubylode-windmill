@@ -15,7 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-module RedmineRubylodeWindmill
+module RubylodeWindmill
   # Puts the status block on the welcome (Home) page, the project Overview and the pages on the path list, as the settings ask.
   # The block itself is the same partial as everywhere else, so permission, caching and the fallback are the same too.
   class Hooks < Redmine::Hook::ViewListener
@@ -37,7 +37,7 @@ module RedmineRubylodeWindmill
 
     # Under the content of every page whose path is on the list. Redmine has no hook above the content.
     def view_layouts_base_content(context)
-      configuration = RubylodeWindmill::Configuration.current
+      configuration = RubylodeWindmill::Settings.current
       return "" unless configuration.show_on_matching_pages?
       return "" unless RubylodeWindmill::PathMatcher.new(configuration.matching_page_paths).match?(context[:request].path)
 
@@ -47,7 +47,7 @@ module RedmineRubylodeWindmill
     private
 
     def render_in_column(context, column, enabled_method, column_method)
-      configuration = RubylodeWindmill::Configuration.current
+      configuration = RubylodeWindmill::Settings.current
       return "" unless configuration.public_send(enabled_method) && configuration.public_send(column_method) == column
 
       context[:hook_caller].render(partial: "rubylode_windmill/status")

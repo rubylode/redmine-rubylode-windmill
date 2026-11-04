@@ -31,7 +31,7 @@ module RubylodeWindmill
 
     def errors
       messages = []
-      messages << t("windmill_url_invalid") unless blank_or_web_address?("windmill_url")
+      messages << t("base_url_invalid") unless blank_or_web_address?("base_url")
       messages << t("plain_http_refused") if plain_http_refused?
       messages << t("workspace_invalid") unless workspace_valid?
       messages << t("environment_variable_invalid") unless environment_variable_valid?
@@ -53,34 +53,34 @@ module RubylodeWindmill
 
     def blank_or_web_address?(key)
       value = @settings[key].to_s.strip
-      value.empty? || Configuration.web_address?(value)
+      value.empty? || Settings.web_address?(value)
     end
 
     def plain_http_refused?
-      configuration = Configuration.new(@settings)
-      url = configuration.windmill_url
-      return false if url.empty? || !Configuration.web_address?(url)
+      configuration = Settings.new(@settings)
+      url = configuration.base_url
+      return false if url.empty? || !Settings.web_address?(url)
 
       !configuration.plain_http_acceptable?(url)
     end
 
     def workspace_valid?
       workspace = @settings["workspace_id"].to_s.strip
-      workspace.empty? || workspace.match?(Configuration::WORKSPACE_PATTERN)
+      workspace.empty? || workspace.match?(Settings::WORKSPACE_PATTERN)
     end
 
     def environment_variable_valid?
       name = @settings["token_environment_variable"].to_s.strip
-      name.empty? || name.match?(Configuration::TOKEN_VARIABLE_PATTERN)
+      name.empty? || name.match?(Settings::TOKEN_VARIABLE_PATTERN)
     end
 
     def allowed_hosts_valid?
-      @settings["allowed_hosts"].to_s.downcase.split(/[\s,]+/).all? { |host| host.empty? || host.match?(Configuration::HOST_PATTERN) }
+      @settings["allowed_hosts"].to_s.downcase.split(/[\s,]+/).all? { |host| host.empty? || host.match?(Settings::HOST_PATTERN) }
     end
 
 def columns_valid?
   %w[welcome_page_column project_overview_column].all? do |key|
-    !@settings.key?(key) || Configuration::COLUMNS.include?(@settings[key].to_s)
+    !@settings.key?(key) || Settings::COLUMNS.include?(@settings[key].to_s)
   end
 end
 
@@ -95,7 +95,7 @@ def path_errors
 end
 
 def visibility_valid?
-      !@settings.key?("visibility") || Configuration::VISIBILITIES.include?(@settings["visibility"].to_s)
+      !@settings.key?("visibility") || Settings::VISIBILITIES.include?(@settings["visibility"].to_s)
     end
 
     def number_errors
@@ -104,7 +104,7 @@ def visibility_valid?
         next if value.empty?
 
         valid = value.match?(/\A\d+\z/) && value.to_i >= minimum
-        t("number_invalid", field: I18n.t("rubylode_windmill.settings.#{key}"), minimum: minimum) unless valid
+        t("number_invalid", field: I18n.t("rubylode_windmill.settings.#{key}.label"), minimum: minimum) unless valid
       end
     end
 

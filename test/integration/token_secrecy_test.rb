@@ -47,7 +47,7 @@ class RubylodeWindmill::TokenSecrecyTest < Redmine::IntegrationTest
 
   test "with the right token the page works and the token is nowhere in the html or the log" do
     log_user("admin", "admin")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_select ".rubylode-windmill-status-summary", text: /failing/
     refute_includes response.body, @fake_token
@@ -58,7 +58,7 @@ class RubylodeWindmill::TokenSecrecyTest < Redmine::IntegrationTest
   test "with a wrong token the page says unavailable and neither the html, the log nor the reason shows either token" do
     ENV[TOKEN_VARIABLE] = "wrong-token-also-secret-55"
     log_user("admin", "admin")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_select ".rubylode-windmill-status-summary", text: "Status unavailable"
     assert_select ".rubylode-windmill-status-hint", text: /401/
@@ -81,9 +81,9 @@ class RubylodeWindmill::TokenSecrecyTest < Redmine::IntegrationTest
 
   test "settings that name SECRET_KEY_BASE at runtime read nothing and send nothing" do
     ENV["SECRET_KEY_BASE"] = "rails-secret-key-base-value"
-    configure_plugin("windmill_url" => @fake_windmill.base_url, "token_environment_variable" => "SECRET_KEY_BASE")
+    configure_plugin("base_url" => @fake_windmill.base_url, "token_environment_variable" => "SECRET_KEY_BASE")
     log_user("admin", "admin")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_select ".rubylode-windmill-status-summary", text: "Status unavailable"
     assert_equal 0, @fake_windmill.request_count
@@ -93,9 +93,9 @@ class RubylodeWindmill::TokenSecrecyTest < Redmine::IntegrationTest
   test "a redirect to another host never receives the token" do
     @other_server = FakeWindmillServer.new(token: @fake_token).start
     # The first server answers 302 to the second one; the second is not a listed host.
-    configure_plugin("windmill_url" => "#{@fake_windmill.base_url}/__redirect/#{@other_server.port}")
+    configure_plugin("base_url" => "#{@fake_windmill.base_url}/__redirect/#{@other_server.port}")
     log_user("admin", "admin")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_select ".rubylode-windmill-status-summary", text: "Status unavailable"
     assert_equal 0, @other_server.request_count, "the other host was never contacted"

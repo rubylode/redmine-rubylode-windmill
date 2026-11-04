@@ -17,11 +17,11 @@
 
 require_relative "../test_helper"
 
-class RubylodeWindmill::ConfigurationTest < ActiveSupport::TestCase
+class RubylodeWindmill::SettingsTest < ActiveSupport::TestCase
   include RubylodeWindmillTestHelpers
 
   test "a fresh install has the documented defaults" do
-    configuration = RubylodeWindmill::Configuration.new({})
+    configuration = RubylodeWindmill::Settings.new({})
 
     assert_equal 24, configuration.look_back_hours
     assert_equal 10, configuration.maximum_rows
@@ -35,9 +35,9 @@ class RubylodeWindmill::ConfigurationTest < ActiveSupport::TestCase
   end
 
   test "the address loses a trailing slash and is configured with a workspace" do
-    configuration = configuration_with("windmill_url" => "https://windmill.example.com/")
+    configuration = configuration_with("base_url" => "https://windmill.example.com/")
 
-    assert_equal "https://windmill.example.com", configuration.windmill_url
+    assert_equal "https://windmill.example.com", configuration.base_url
     assert configuration.configured?
     refute configuration_with("workspace_id" => "").configured?
   end
@@ -112,11 +112,11 @@ class RubylodeWindmill::ConfigurationTest < ActiveSupport::TestCase
   end
 end
 
-class RubylodeWindmill::ConfigurationPlacementTest < ActiveSupport::TestCase
+class RubylodeWindmill::SettingsPlacementTest < ActiveSupport::TestCase
   include RubylodeWindmillTestHelpers
 
   test "the block is shown nowhere extra on a fresh install" do
-    configuration = RubylodeWindmill::Configuration.new({})
+    configuration = RubylodeWindmill::Settings.new({})
 
     refute configuration.show_on_welcome_page?
     refute configuration.show_on_my_page?

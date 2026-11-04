@@ -3,7 +3,7 @@
     kind and description columns, for a strip under another page's content). It draws nothing for a person the
     settings do not allow, and a hint for administrators while the plugin is not set up. Every string that comes from
     Windmill is printed through ERB, which escapes it. %>
-<% configuration = RubylodeWindmill::Configuration.current %>
+<% configuration = RubylodeWindmill::Settings.current %>
 <% if configuration.visible_to?(User.current) %>
   <% content_for :header_tags, stylesheet_link_tag("rubylode_windmill", plugin: "redmine_rubylode_windmill") %>
   <% block_title = local_assigns[:title].presence || configuration.block_title %>
@@ -11,7 +11,7 @@
   <% compact = local_assigns.fetch(:compact, false) %>
   <% if configuration.configured? %>
     <% report = RubylodeWindmill::WindmillStatus.safe_report(configuration) %>
-    <% run_url = ->(run_id) { run_id.to_s.match?(/\A[0-9a-f-]{36}\z/i) ? "#{configuration.windmill_url}/run/#{run_id}?workspace=#{ERB::Util.url_encode(configuration.workspace_id)}" : nil } %>
+    <% run_url = ->(run_id) { run_id.to_s.match?(/\A[0-9a-f-]{36}\z/i) ? "#{configuration.base_url}/run/#{run_id}?workspace=#{ERB::Util.url_encode(configuration.workspace_id)}" : nil } %>
     <div class="rubylode-windmill-status<%= " is-compact" if compact %>">
       <% if show_title %><h3 class="rubylode-windmill-status-title"><%= block_title %></h3><% end %>
       <p class="rubylode-windmill-status-summary is-<%= report.summary_state.to_s.dasherize %>"><%= report.summary %></p>
@@ -45,7 +45,7 @@
         </table>
         <% if report.hidden_count.positive? %>
           <p class="rubylode-windmill-status-hint"><%= l("rubylode_windmill.hints.more_failing", count: report.hidden_count) %>
-            <%= link_to l("rubylode_windmill.hints.open_runs"), "#{configuration.windmill_url}/runs?workspace=#{ERB::Util.url_encode(configuration.workspace_id)}" %></p>
+            <%= link_to l("rubylode_windmill.hints.open_runs"), "#{configuration.base_url}/runs?workspace=#{ERB::Util.url_encode(configuration.workspace_id)}" %></p>
         <% end %>
       <% end %>
 
@@ -89,7 +89,7 @@
       <% if show_title %><h3 class="rubylode-windmill-status-title"><%= block_title %></h3><% end %>
       <p class="rubylode-windmill-status-hint">
         <%= l("rubylode_windmill.hints.not_configured") %>
-        <%= link_to l("rubylode_windmill.hints.not_configured_link"), plugin_settings_path(RedmineRubylodeWindmill::PLUGIN_ID.to_s) %>
+        <%= link_to l("rubylode_windmill.hints.not_configured_link"), plugin_settings_path(RubylodeWindmill::Settings::PLUGIN_ID.to_s) %>
       </p>
     </div>
   <% end %>

@@ -227,3 +227,15 @@ body.dark .rubylode-windmill-status {
 #rubylode-windmill-help table.list td {
   text-align: left;
 }
+
+/* The Column select next to a placement check box on the settings page. */
+.rubylode-windmill-column {
+  margin-left: 1em;
+}
+
+.tabular .rubylode-windmill-column label {
+  float: none;
+  width: auto;
+  margin-left: 0;
+  font-weight: normal;
+}

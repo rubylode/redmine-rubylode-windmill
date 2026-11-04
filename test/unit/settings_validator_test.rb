@@ -18,8 +18,8 @@
 require_relative "../test_helper"
 
 class RubylodeWindmill::SettingsValidatorTest < ActiveSupport::TestCase
-  GOOD = RedmineRubylodeWindmill::Defaults::SETTINGS.merge(
-    "windmill_url" => "https://windmill.example.com", "workspace_id" => "demo",
+  GOOD = RubylodeWindmill::Settings::DEFAULTS.merge(
+    "base_url" => "https://windmill.example.com", "workspace_id" => "demo",
     "watched_schedules" => "Sync | f/billing/sync | Copies"
   ).freeze
 
@@ -29,7 +29,7 @@ class RubylodeWindmill::SettingsValidatorTest < ActiveSupport::TestCase
 
   test "good settings and an empty fresh install have no errors" do
     assert_empty errors_for
-    assert_empty RubylodeWindmill::SettingsValidator.errors_for(RedmineRubylodeWindmill::Defaults::SETTINGS)
+    assert_empty RubylodeWindmill::SettingsValidator.errors_for(RubylodeWindmill::Settings::DEFAULTS)
   end
 
   test "SECRET_KEY_BASE and DATABASE_PASSWORD are refused as the token variable" do
@@ -40,13 +40,13 @@ class RubylodeWindmill::SettingsValidatorTest < ActiveSupport::TestCase
   end
 
   test "plain http is refused unless the host is loopback or plain http is allowed" do
-    assert errors_for("windmill_url" => "http://windmill.internal").any? { |message| message.include?("https") }
-    assert_empty errors_for("windmill_url" => "http://localhost:8000")
-    assert_empty errors_for("windmill_url" => "http://windmill.internal", "allow_plain_http" => "1")
+    assert errors_for("base_url" => "http://windmill.internal").any? { |message| message.include?("https") }
+    assert_empty errors_for("base_url" => "http://localhost:8000")
+    assert_empty errors_for("base_url" => "http://windmill.internal", "allow_plain_http" => "1")
   end
 
   test "a bad address, workspace, host list, title, visibility and numbers are each reported" do
-    assert errors_for("windmill_url" => "ftp://x").any?
+    assert errors_for("base_url" => "ftp://x").any?
     assert errors_for("workspace_id" => "has space").any?
     assert errors_for("allowed_hosts" => "bad host!").any?
     assert errors_for("block_title" => " ").any?

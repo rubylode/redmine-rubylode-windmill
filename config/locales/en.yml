@@ -10,14 +10,21 @@ en:
         one: "%{count} schedule needs a look"
         other: "%{count} schedules need a look"
       unavailable: Status unavailable
+      not_set_up: Windmill is not set up yet.
       success: Succeeded
       failure: Failed
+      last_run_failed: Last run failed
+      failed_times: "%{error} (%{count} failures)"
       none: No run yet
       never: Never
       overdue: Not run since its expected time
       paused: Paused
       unknown: Could not be read
       missing: Not found in Windmill
+    status_plugin:
+      missing_html: "Install %{link} to see this with the other status blocks on one page."
+      installed_html: "Rubylode Status is installed, so this block shows on the %{link}."
+      status_page: Status page
     headings:
       needs_attention: Needs attention
       schedules: Watched schedules
@@ -41,14 +48,13 @@ en:
       reason: "Why: %{reason}"
       more_failing: "And %{count} more failing."
       open_runs: Open the runs in Windmill
-    page_title: Windmill status
     errors:
       line_field_count: "needs %{count} fields separated by |, found %{found}"
       line_name_missing: the name is empty
       line_path_invalid: "%{path} is not a schedule path (for example f/folder/name or u/user/name)"
       line_prefix: "Watched schedules, line %{line_number}: %{message}"
-      windmill_url_invalid: The Windmill address must start with http:// or https://
-      plain_http_refused: "The Windmill address must use https. Plain http is accepted only for localhost or when \"Allow plain http\" is ticked."
+      base_url_invalid: The Windmill address must start with http:// or https://
+      plain_http_refused: "The Windmill address must use https. Plain http works only for localhost, or when \"Allow plain http\" is checked."
       workspace_invalid: The workspace id may only use letters, digits, hyphens and underscores
       environment_variable_invalid: "The token variable name must start with WINDMILL_ and use only capital letters, digits and underscores (for example WINDMILL_API_TOKEN)"
       allowed_hosts_invalid: The allowed hosts may only be host names, separated by spaces or commas
@@ -70,63 +76,89 @@ en:
       too_many_redirects: Windmill redirected too many times
       windmill_status: "Windmill answered %{status}"
       windmill_unreachable: "Windmill could not be reached (%{error_class})"
-      windmill_unreadable: Windmill answered something unreadable
+      windmill_unreadable: "Windmill's answer could not be read"
       windmill_did_not_answer: Windmill did not answer
       no_error_message: No error message
       result_too_big: The error is too large to show
     settings:
-      windmill_url: Windmill address
-      windmill_url_hint: "For example https://windmill.example.com, with no path. Must be https, except for localhost."
-      workspace_id: Workspace id
-      workspace_id_hint: "The workspace to watch, as it appears in Windmill's addresses."
-      token_environment_variable: Name of the token environment variable
-      token_environment_variable_hint: "The token itself is never saved here: put a Windmill API token in this environment variable before Redmine starts. The name must start with WINDMILL_. It is sent only to the Windmill address above."
-      token_is_set: "set in the environment"
-      token_is_not_set: "not set in the environment"
-      allowed_hosts: Other hosts that may receive the token
-      allowed_hosts_hint: "Optional, separated by spaces. Only needed when Windmill redirects to another host name. The token never goes anywhere else."
-      allow_plain_http: Allow plain http (internal network)
-      allow_plain_http_hint: "Leave unticked unless Windmill is only reachable over http on a network you trust. The token travels in clear text then."
-      look_back_hours: Look-back hours
-      look_back_hours_hint: "Failed runs started within this many hours are considered."
-      maximum_rows: Maximum rows
-      path_prefix: Path prefix filter
-      path_prefix_hint: "Optional. Only scripts and flows whose path starts with this (for example f/billing/) are listed. Several, separated by commas."
-      watched_schedules: Watched schedules
-      watched_schedules_hint: "One schedule per line: Name | schedule path | Description. The description may be empty. Lines starting with # are ignored."
-      watched_schedules_example: |-
-        Nightly sync | f/billing/nightly_sync | Copies invoices at 02:00
-        Hourly metrics | f/reports/hourly_metrics | Refreshes the dashboard
-      block_title: Block title
-      visibility: Who may see the block
-      visibility_logged_in: Everyone who is signed in
-      visibility_admins: Administrators only
-      show_on_welcome_page: Show on the welcome page
-      show_on_welcome_page_hint: "Adds the block to Redmine's home page, for the people allowed to see it."
-      welcome_page_column: Welcome page column
-      show_on_my_page: Show on My page
-      show_on_my_page_hint: "Adds the block to the default My page, for people who have not arranged their own. Everyone can add or remove it from the My page block list."
-      show_on_project_overview: Show on the project Overview page
-      show_on_project_overview_hint: "Adds the block to every project's Overview page (the same Windmill workspace for every project)."
-      project_overview_column: Project Overview column
+      sections:
+        show_on: Show the block on
+      base_url:
+        label: Windmill address
+        hint: "The address of your Windmill, for example https://windmill.example.com. Empty means the block is shown to administrators only, with a hint."
+      workspace_id:
+        label: Workspace id
+        hint: "The workspace to watch, the name after workspace= in Windmill's run links."
+      token_environment_variable:
+        label: Token variable
+        hint: "The name of the environment variable that holds the API token. The token is never saved here. Set it before Redmine starts. The name must start with WINDMILL_."
+        is_set: "set in the environment"
+        is_not_set: "not set in the environment"
+      allowed_hosts:
+        label: Allowed hosts
+        hint: "Hosts that may receive the token besides the address above, separated by spaces or commas. Redirects to other hosts are never followed."
+      allow_plain_http:
+        label: Allow plain http
+        hint: "Check this only when Windmill is on a network you trust. The token then travels unencrypted."
+      look_back_hours:
+        label: Look-back hours
+        hint: "Failed runs started within this many hours are considered."
+      maximum_rows:
+        label: Maximum rows
+        hint: "At most this many rows are listed. Failing paths beyond this are counted, not listed."
+      path_prefix:
+        label: Path prefix filter
+        hint: "Only scripts and flows whose path starts with this are listed, for example f/billing/. Separate several prefixes with commas."
+      watched_schedules:
+        label: Watched schedules
+        hint: "One schedule per line: Name | schedule path | Description. The description may be empty. Lines starting with # are ignored."
+        example: |-
+          Nightly sync | f/billing/nightly_sync | Copies invoices at 02:00
+          Hourly metrics | f/reports/hourly_metrics | Refreshes the dashboard
+      block_title:
+        label: Block title
+        hint: "The heading of the block and the name of the top menu link."
+      visibility:
+        label: Who may see the block
+        logged_in: Everyone who is signed in
+        admins: Administrators only
+      cache_seconds:
+        label: Cache seconds
+        hint: "Windmill is asked at most once in this many seconds."
+      failure_cache_seconds:
+        label: Failure cache seconds
+        hint: "After a failed answer Windmill is left alone for this many seconds."
+      timeout_seconds:
+        label: Timeout seconds
+        hint: "A request to Windmill is given up after this many seconds."
+      show_on_welcome_page:
+        label: Welcome page
+        hint: "Adds the block to Redmine's home page for the people who may see it."
+      welcome_page_column:
+        label: Column
+      show_on_my_page:
+        label: My page
+        hint: "Adds the block to the default My page, for people who have not arranged their own. Everyone can still add it from the block list."
+      show_on_project_overview:
+        label: Project Overview page
+        hint: "Adds the block to every project's Overview page. Every project shows the same Windmill workspace."
+      project_overview_column:
+        label: Column
       column_left: Left
       column_right: Right
-      show_on_matching_pages: Show on pages matching these paths
-      matching_page_paths: Paths
-      matching_page_paths_hint: "One path per line, starting with /. * stands for anything inside one path segment, ** for anything. A query string and a trailing slash are ignored. Sign-in, account, Administration and the settings are never matched by a wildcard. Lines starting with # are ignored."
-      matching_page_paths_example: |-
-        /issues
-        /projects/*/issues
-        /projects/ecookbook/wiki/**
-      show_in_top_menu: Add a Windmill status link to the top menu
-      show_in_top_menu_hint: "Links to the standalone page at /windmill_status, for the people allowed to see it."
-      section_where: Show the block on
-      cache_seconds: Cache seconds
-      cache_seconds_hint: "Windmill is asked at most once in this many seconds."
-      failure_cache_seconds: Failure cache seconds
-      failure_cache_seconds_hint: "After a failed answer Windmill is left alone for this long."
-      timeout_seconds: Timeout seconds
-      timeout_seconds_hint: "For each request to Windmill."
+      show_on_matching_pages:
+        label: Pages matching these paths
+        hint: "Adds a small version of the block to each page whose path matches one of the paths below."
+      matching_page_paths:
+        label: Paths
+        hint: "One path per line, starting with /, for example /issues or /projects/*/issues. * matches one path segment and ** matches anything. A query string and a trailing slash are ignored. Lines starting with # are ignored."
+        example: |-
+          /issues
+          /projects/*/issues
+          /projects/ecookbook/wiki/**
+      show_in_top_menu:
+        label: Show in the top menu
+        hint: "Adds a link to /status/windmill to the top menu, for the people who may see the block."
     help:
       title: How to show the block on other pages
       intro: 'The block is one partial, so it looks and behaves the same everywhere: it respects who may see it, uses the cache and shows "Status unavailable" instead of breaking the page.'
@@ -136,15 +168,15 @@ en:
       place_wiki: Wiki pages, news, issue and project descriptions, the welcome text
       how_wiki: "Write the macro {{windmill_status}}. All of these are rendered with Redmine's text formatting, which runs macros (the welcome text on the home page included)."
       place_welcome: Welcome page
-      how_welcome: 'Tick "Show on the welcome page", or put the macro into the welcome text (Administration, Settings, General).'
+      how_welcome: 'Check "Welcome page", or put the macro into the welcome text (Administration, Settings, General).'
       place_my_page: My page
-      how_my_page: 'Add "Windmill status" from the My page block list, or tick "Show on My page" to put it on the default layout.'
+      how_my_page: 'Add "Windmill status" from the My page block list, or check "My page" to put it on the default layout.'
       place_overview: Project Overview page
-      how_overview: 'Tick "Show on the project Overview page".'
+      how_overview: 'Check "Project Overview page".'
       place_paths: Any page by its path
-      how_paths: "List paths such as /issues or /projects/*/issues. The block is drawn, slimmed down, under the page's content."
+      how_paths: "List paths such as /issues or /projects/*/issues. A compact block appears under the page content."
       place_page: A page of its own
-      how_page: '/windmill_status, for the people allowed to see it. Tick "Add a Windmill status link to the top menu" for a menu entry.'
+      how_page: '/status/windmill, for the people allowed to see it. Check "Show in the top menu" for a menu entry.'
       place_partial: A theme or another plugin
       how_partial: 'render partial: "rubylode_windmill/status", with the optional locals title (text), show_title (false hides the heading) and compact (true for the slim variant).'
       setting_no: "No"

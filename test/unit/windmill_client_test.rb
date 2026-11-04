@@ -153,13 +153,13 @@ class RubylodeWindmill::WindmillClientTest < ActiveSupport::TestCase
   end
 
   test "plain http to a host that is not loopback is refused before anything is sent" do
-    assert_raises(RubylodeWindmill::WindmillClient::Unavailable) { client_for([200, "[]"], "windmill_url" => "http://windmill.internal").failed_runs }
+    assert_raises(RubylodeWindmill::WindmillClient::Unavailable) { client_for([200, "[]"], "base_url" => "http://windmill.internal").failed_runs }
     assert_empty @calls
 
-    client_for([200, "[]"], "windmill_url" => "http://windmill.internal", "allow_plain_http" => "1").failed_runs
+    client_for([200, "[]"], "base_url" => "http://windmill.internal", "allow_plain_http" => "1").failed_runs
     assert_equal 1, @calls.size
     @calls.clear
-    client_for([200, "[]"], "windmill_url" => "http://localhost:8000").failed_runs
+    client_for([200, "[]"], "base_url" => "http://localhost:8000").failed_runs
     assert_equal 1, @calls.size
   end
 

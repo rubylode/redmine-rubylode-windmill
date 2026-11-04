@@ -15,22 +15,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-module RedmineRubylodeWindmill
-  # Redmine saves plugin settings without asking the plugin. This checks ours first: when something is wrong the form is
-  # shown again with what the person typed and a list of the problems, and nothing is saved.
-  module SettingsControllerPatch
-    def plugin
-      return super unless request.post? && params[:id].to_s == PLUGIN_ID.to_s
+module RubylodeWindmill
+  module Macros
+    def self.register
+      Redmine::WikiFormatting::Macros.register do
+        desc <<~DESCRIPTION
+          Shows the state of the Windmill workspace set up in the Rubylode Windmill settings: failed runs that need attention
+          and the latest run of the watched schedules.
 
-      submitted = params[:settings] ? params[:settings].permit!.to_h : {}
-      errors = RubylodeWindmill::SettingsValidator.errors_for(submitted)
-      return super if errors.empty?
+            {{windmill_status}}
+            {{windmill_status(title=Automation)}}
 
-      @plugin = Redmine::Plugin.find(params[:id])
-      @partial = @plugin.settings[:partial]
-      @settings = submitted
-      @validation_errors = errors
-      render "settings/plugin", status: :unprocessable_entity
+          Nothing is shown to people who are not allowed to see it.
+        DESCRIPTION
+        macro :windmill_status do |_object, arguments|
+          _positional, options = extract_macro_options(arguments, :title)
+          render partial: "rubylode_windmill/status", locals: { title: options[:title].presence }
+        end
+      end
     end
   end
 end

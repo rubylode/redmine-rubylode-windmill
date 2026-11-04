@@ -1,5 +1,5 @@
 <% content_for :header_tags, stylesheet_link_tag("rubylode_windmill", plugin: "redmine_rubylode_windmill") %>
-<% configuration = RubylodeWindmill::Configuration.new(settings) %>
+<% configuration = RubylodeWindmill::Settings.new(settings) %>
 <% if @validation_errors.present? %>
   <div id="errorExplanation" class="rubylode-windmill-errors">
     <ul>
@@ -8,136 +8,151 @@
   </div>
 <% end %>
 <% scope = "rubylode_windmill.settings" %>
-<% text_value = ->(key) { settings[key].nil? ? RedmineRubylodeWindmill::Defaults::SETTINGS[key] : settings[key] } %>
+<% text_value = ->(key) { settings[key].nil? ? RubylodeWindmill::Settings::DEFAULTS[key] : settings[key] } %>
 
 <p>
-  <label for="settings_windmill_url"><%= l("#{scope}.windmill_url") %></label>
-  <%= text_field_tag "settings[windmill_url]", text_value.call("windmill_url"), size: 60, id: "settings_windmill_url", placeholder: "https://windmill.example.com" %>
-  <em class="info"><%= l("#{scope}.windmill_url_hint") %></em>
+  <label for="settings_base_url"><%= l("#{scope}.base_url.label") %></label>
+  <%= text_field_tag "settings[base_url]", text_value.call("base_url"), size: 60, id: "settings_base_url", placeholder: "https://windmill.example.com" %>
+  <em class="info"><%= l("#{scope}.base_url.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_workspace_id"><%= l("#{scope}.workspace_id") %></label>
+  <label for="settings_workspace_id"><%= l("#{scope}.workspace_id.label") %></label>
   <%= text_field_tag "settings[workspace_id]", text_value.call("workspace_id"), size: 30, id: "settings_workspace_id", placeholder: "my-workspace" %>
-  <em class="info"><%= l("#{scope}.workspace_id_hint") %></em>
+  <em class="info"><%= l("#{scope}.workspace_id.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_token_environment_variable"><%= l("#{scope}.token_environment_variable") %></label>
+  <label for="settings_token_environment_variable"><%= l("#{scope}.token_environment_variable.label") %></label>
   <%= text_field_tag "settings[token_environment_variable]", text_value.call("token_environment_variable"), size: 30, id: "settings_token_environment_variable" %>
   <em class="info">
-    <%= l("#{scope}.token_environment_variable_hint") %>
-    <strong><%= configuration.token.empty? ? l("#{scope}.token_is_not_set") : l("#{scope}.token_is_set") %></strong>
+    <%= l("#{scope}.token_environment_variable.hint") %>
+    <strong><%= configuration.token.empty? ? l("#{scope}.token_environment_variable.is_not_set") : l("#{scope}.token_environment_variable.is_set") %></strong>
   </em>
 </p>
 
 <p>
-  <label for="settings_allowed_hosts"><%= l("#{scope}.allowed_hosts") %></label>
+  <label for="settings_allowed_hosts"><%= l("#{scope}.allowed_hosts.label") %></label>
   <%= text_field_tag "settings[allowed_hosts]", text_value.call("allowed_hosts"), size: 60, id: "settings_allowed_hosts", placeholder: "windmill-alias.example.com" %>
-  <em class="info"><%= l("#{scope}.allowed_hosts_hint") %></em>
+  <em class="info"><%= l("#{scope}.allowed_hosts.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_allow_plain_http"><%= l("#{scope}.allow_plain_http") %></label>
+  <label for="settings_allow_plain_http"><%= l("#{scope}.allow_plain_http.label") %></label>
   <%= hidden_field_tag "settings[allow_plain_http]", "0", id: nil %>
   <%= check_box_tag "settings[allow_plain_http]", "1", text_value.call("allow_plain_http").to_s == "1", id: "settings_allow_plain_http" %>
-  <em class="info"><%= l("#{scope}.allow_plain_http_hint") %></em>
+  <em class="info"><%= l("#{scope}.allow_plain_http.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_look_back_hours"><%= l("#{scope}.look_back_hours") %></label>
+  <label for="settings_look_back_hours"><%= l("#{scope}.look_back_hours.label") %></label>
   <%= number_field_tag "settings[look_back_hours]", text_value.call("look_back_hours"), min: 1, size: 6, id: "settings_look_back_hours" %>
-  <em class="info"><%= l("#{scope}.look_back_hours_hint") %></em>
+  <em class="info"><%= l("#{scope}.look_back_hours.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_maximum_rows"><%= l("#{scope}.maximum_rows") %></label>
+  <label for="settings_maximum_rows"><%= l("#{scope}.maximum_rows.label") %></label>
   <%= number_field_tag "settings[maximum_rows]", text_value.call("maximum_rows"), min: 1, size: 6, id: "settings_maximum_rows" %>
+  <em class="info"><%= l("#{scope}.maximum_rows.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_path_prefix"><%= l("#{scope}.path_prefix") %></label>
+  <label for="settings_path_prefix"><%= l("#{scope}.path_prefix.label") %></label>
   <%= text_field_tag "settings[path_prefix]", text_value.call("path_prefix"), size: 40, id: "settings_path_prefix", placeholder: "f/" %>
-  <em class="info"><%= l("#{scope}.path_prefix_hint") %></em>
+  <em class="info"><%= l("#{scope}.path_prefix.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_watched_schedules"><%= l("#{scope}.watched_schedules") %></label>
-  <%= text_area_tag "settings[watched_schedules]", text_value.call("watched_schedules"), rows: 8, cols: 90, id: "settings_watched_schedules", class: "wiki-edit", placeholder: l("#{scope}.watched_schedules_example") %>
-  <em class="info"><%= l("#{scope}.watched_schedules_hint") %></em>
+  <label for="settings_watched_schedules"><%= l("#{scope}.watched_schedules.label") %></label>
+  <%= text_area_tag "settings[watched_schedules]", text_value.call("watched_schedules"), rows: 8, cols: 90, id: "settings_watched_schedules", class: "wiki-edit", placeholder: l("#{scope}.watched_schedules.example") %>
+  <em class="info"><%= l("#{scope}.watched_schedules.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_block_title"><%= l("#{scope}.block_title") %></label>
+  <label for="settings_block_title"><%= l("#{scope}.block_title.label") %></label>
   <%= text_field_tag "settings[block_title]", text_value.call("block_title"), size: 30, id: "settings_block_title" %>
+  <em class="info"><%= l("#{scope}.block_title.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_visibility"><%= l("#{scope}.visibility") %></label>
-  <%= select_tag "settings[visibility]", options_for_select([[l("#{scope}.visibility_logged_in"), "logged_in"], [l("#{scope}.visibility_admins"), "admins"]], text_value.call("visibility")), id: "settings_visibility" %>
+  <label for="settings_visibility"><%= l("#{scope}.visibility.label") %></label>
+  <%= select_tag "settings[visibility]", options_for_select([[l("#{scope}.visibility.logged_in"), "logged_in"], [l("#{scope}.visibility.admins"), "admins"]], text_value.call("visibility")), id: "settings_visibility" %>
 </p>
 
 <p>
-  <label for="settings_cache_seconds"><%= l("#{scope}.cache_seconds") %></label>
+  <label for="settings_cache_seconds"><%= l("#{scope}.cache_seconds.label") %></label>
   <%= number_field_tag "settings[cache_seconds]", text_value.call("cache_seconds"), min: 0, size: 6, id: "settings_cache_seconds" %>
-  <em class="info"><%= l("#{scope}.cache_seconds_hint") %></em>
+  <em class="info"><%= l("#{scope}.cache_seconds.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_failure_cache_seconds"><%= l("#{scope}.failure_cache_seconds") %></label>
+  <label for="settings_failure_cache_seconds"><%= l("#{scope}.failure_cache_seconds.label") %></label>
   <%= number_field_tag "settings[failure_cache_seconds]", text_value.call("failure_cache_seconds"), min: 0, size: 6, id: "settings_failure_cache_seconds" %>
-  <em class="info"><%= l("#{scope}.failure_cache_seconds_hint") %></em>
+  <em class="info"><%= l("#{scope}.failure_cache_seconds.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_timeout_seconds"><%= l("#{scope}.timeout_seconds") %></label>
+  <label for="settings_timeout_seconds"><%= l("#{scope}.timeout_seconds.label") %></label>
   <%= number_field_tag "settings[timeout_seconds]", text_value.call("timeout_seconds"), min: 1, size: 6, id: "settings_timeout_seconds" %>
-  <em class="info"><%= l("#{scope}.timeout_seconds_hint") %></em>
+  <em class="info"><%= l("#{scope}.timeout_seconds.hint") %></em>
 </p>
 
-<h3><%= l("#{scope}.section_where") %></h3>
+<h3><%= l("#{scope}.sections.show_on") %></h3>
 
 <p>
-  <label for="settings_show_on_welcome_page"><%= l("#{scope}.show_on_welcome_page") %></label>
+  <label for="settings_show_on_welcome_page"><%= l("#{scope}.show_on_welcome_page.label") %></label>
   <%= hidden_field_tag "settings[show_on_welcome_page]", "0", id: nil %>
   <%= check_box_tag "settings[show_on_welcome_page]", "1", text_value.call("show_on_welcome_page").to_s == "1", id: "settings_show_on_welcome_page" %>
-  <%= select_tag "settings[welcome_page_column]", options_for_select([[l("#{scope}.column_left"), "left"], [l("#{scope}.column_right"), "right"]], text_value.call("welcome_page_column")), id: "settings_welcome_page_column", title: l("#{scope}.welcome_page_column") %>
-  <em class="info"><%= l("#{scope}.show_on_welcome_page_hint") %></em>
+  <span class="rubylode-windmill-column">
+    <label for="settings_welcome_page_column"><%= l("#{scope}.welcome_page_column.label") %></label>
+    <%= select_tag "settings[welcome_page_column]", options_for_select([[l("#{scope}.column_left"), "left"], [l("#{scope}.column_right"), "right"]], text_value.call("welcome_page_column")), id: "settings_welcome_page_column" %>
+  </span>
+  <em class="info"><%= l("#{scope}.show_on_welcome_page.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_show_on_my_page"><%= l("#{scope}.show_on_my_page") %></label>
+  <label for="settings_show_on_my_page"><%= l("#{scope}.show_on_my_page.label") %></label>
   <%= hidden_field_tag "settings[show_on_my_page]", "0", id: nil %>
   <%= check_box_tag "settings[show_on_my_page]", "1", text_value.call("show_on_my_page").to_s == "1", id: "settings_show_on_my_page" %>
-  <em class="info"><%= l("#{scope}.show_on_my_page_hint") %></em>
+  <em class="info"><%= l("#{scope}.show_on_my_page.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_show_on_project_overview"><%= l("#{scope}.show_on_project_overview") %></label>
+  <label for="settings_show_on_project_overview"><%= l("#{scope}.show_on_project_overview.label") %></label>
   <%= hidden_field_tag "settings[show_on_project_overview]", "0", id: nil %>
   <%= check_box_tag "settings[show_on_project_overview]", "1", text_value.call("show_on_project_overview").to_s == "1", id: "settings_show_on_project_overview" %>
-  <%= select_tag "settings[project_overview_column]", options_for_select([[l("#{scope}.column_left"), "left"], [l("#{scope}.column_right"), "right"]], text_value.call("project_overview_column")), id: "settings_project_overview_column", title: l("#{scope}.project_overview_column") %>
-  <em class="info"><%= l("#{scope}.show_on_project_overview_hint") %></em>
+  <span class="rubylode-windmill-column">
+    <label for="settings_project_overview_column"><%= l("#{scope}.project_overview_column.label") %></label>
+    <%= select_tag "settings[project_overview_column]", options_for_select([[l("#{scope}.column_left"), "left"], [l("#{scope}.column_right"), "right"]], text_value.call("project_overview_column")), id: "settings_project_overview_column" %>
+  </span>
+  <em class="info"><%= l("#{scope}.show_on_project_overview.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_show_on_matching_pages"><%= l("#{scope}.show_on_matching_pages") %></label>
+  <label for="settings_show_on_matching_pages"><%= l("#{scope}.show_on_matching_pages.label") %></label>
   <%= hidden_field_tag "settings[show_on_matching_pages]", "0", id: nil %>
   <%= check_box_tag "settings[show_on_matching_pages]", "1", text_value.call("show_on_matching_pages").to_s == "1", id: "settings_show_on_matching_pages" %>
+  <em class="info"><%= l("#{scope}.show_on_matching_pages.hint") %></em>
 </p>
 
 <p>
-  <label for="settings_matching_page_paths"><%= l("#{scope}.matching_page_paths") %></label>
-  <%= text_area_tag "settings[matching_page_paths]", text_value.call("matching_page_paths"), rows: 4, cols: 60, id: "settings_matching_page_paths", class: "wiki-edit", placeholder: l("#{scope}.matching_page_paths_example") %>
-  <em class="info"><%= l("#{scope}.matching_page_paths_hint") %></em>
+  <label for="settings_matching_page_paths"><%= l("#{scope}.matching_page_paths.label") %></label>
+  <%= text_area_tag "settings[matching_page_paths]", text_value.call("matching_page_paths"), rows: 4, cols: 60, id: "settings_matching_page_paths", class: "wiki-edit", placeholder: l("#{scope}.matching_page_paths.example") %>
+  <em class="info"><%= l("#{scope}.matching_page_paths.hint") %></em>
 </p>
 
-<p>
-  <label for="settings_show_in_top_menu"><%= l("#{scope}.show_in_top_menu") %></label>
-  <%= hidden_field_tag "settings[show_in_top_menu]", "0", id: nil %>
-  <%= check_box_tag "settings[show_in_top_menu]", "1", text_value.call("show_in_top_menu").to_s == "1", id: "settings_show_in_top_menu" %>
-  <em class="info"><%= l("#{scope}.show_in_top_menu_hint") %></em>
-</p>
+<% if RubylodeWindmill::Settings.status_plugin_installed? %>
+  <%= hidden_field_tag "settings[show_in_top_menu]", text_value.call("show_in_top_menu"), id: nil %>
+<% else %>
+  <p>
+    <label for="settings_show_in_top_menu"><%= l("#{scope}.show_in_top_menu.label") %></label>
+    <%= hidden_field_tag "settings[show_in_top_menu]", "0", id: nil %>
+    <%= check_box_tag "settings[show_in_top_menu]", "1", text_value.call("show_in_top_menu").to_s == "1", id: "settings_show_in_top_menu" %>
+    <em class="info"><%= l("#{scope}.show_in_top_menu.hint") %></em>
+  </p>
+<% end %>
+
+<%= render partial: "rubylode_windmill/status_plugin_notice" %>
 
 <div class="rubylode-windmill-help" id="rubylode-windmill-help">
   <h3><%= l("rubylode_windmill.help.title") %></h3>

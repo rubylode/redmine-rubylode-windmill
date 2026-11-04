@@ -56,7 +56,7 @@ class RubylodeWindmill::WikiMacroTest < Redmine::IntegrationTest
   end
 
   test "the macro draws nothing for a person the settings do not allow" do
-    configure_plugin("windmill_url" => @fake_windmill.base_url, "visibility" => "admins")
+    configure_plugin("base_url" => @fake_windmill.base_url, "visibility" => "admins")
     get_wiki_page("before {{windmill_status}} after")
 
     assert_select ".wiki .rubylode-windmill-status", 0

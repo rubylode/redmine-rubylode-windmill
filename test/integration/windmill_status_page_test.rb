@@ -35,7 +35,7 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
   test "failures that still need attention are listed with path, kind, time, error and a link to the run" do
     start_fake_windmill
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_response :success
     assert_select ".rubylode-windmill-status-summary.is-attention", text: /\A4 failing/
@@ -47,10 +47,31 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
     assert_select "tr.is-failed td.rubylode-windmill-status-path", text: /import_contacts.*2/m
   end
 
+  test "the old page address redirects to the new one for one release" do
+    get "/windmill_status"
+
+    assert_response :moved_permanently
+    assert_redirected_to "/status/windmill"
+  end
+
+  test "the page tells where the Status plugin is, or that it is installed" do
+    start_fake_windmill
+    log_user("jsmith", "jsmith")
+    get "/status/windmill"
+    assert_select "p.rubylode-status-notice a[href=?]", "https://github.com/rubylode/redmine-rubylode-status", text: "Rubylode Status"
+    assert_select "p.rubylode-status-notice", text: "Install Rubylode Status to see this with the other status blocks on one page."
+
+    with_fake_status_registry do
+      get "/status/windmill"
+      assert_select "p.rubylode-status-notice", text: "Rubylode Status is installed, so this block shows on the Status page."
+      assert_select "p.rubylode-status-notice a[href=?]", "/status", text: "Status page"
+    end
+  end
+
   test "a failure that was followed by a success and one outside the window are not listed" do
     start_fake_windmill
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_select "td.rubylode-windmill-status-path", text: /cleanup_files/, count: 0
     assert_select "td.rubylode-windmill-status-path", text: /old_export/, count: 0
@@ -59,7 +80,7 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
   test "a long error is truncated" do
     start_fake_windmill
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_select "td.rubylode-windmill-status-error", text: /\A429 rate limited by the CRM.*…\z/m
   end
@@ -67,7 +88,7 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
   test "all green says nothing needs attention and lists no failures" do
     start_fake_windmill(scenario: "all_green")
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_select ".rubylode-windmill-status-summary.is-ok", text: "Nothing needs attention"
     assert_select "table.rubylode-windmill-failures", 0
@@ -76,7 +97,7 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
   test "watched schedules show their last result and a late one is flagged" do
     start_fake_windmill
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_select "table.rubylode-windmill-schedules tbody tr", 3
     assert_select "tr.is-success td.rubylode-windmill-status-name", text: "Nightly sync"
@@ -88,7 +109,7 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
   test "a healthy schedule in the all green scenario is not flagged" do
     start_fake_windmill(scenario: "all_green")
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_select "tr.is-overdue", 0
     assert_select "tr.is-failure", 0
@@ -98,7 +119,7 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
   test "the path prefix filter narrows the failures" do
     start_fake_windmill("path_prefix" => "f/billing/")
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_select ".rubylode-windmill-status-summary", text: /\A1 failing/
   end
@@ -106,7 +127,7 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
   test "rows beyond the maximum are counted" do
     start_fake_windmill("maximum_rows" => "2")
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_select "table.rubylode-windmill-failures tbody tr", 2
     assert_select ".rubylode-windmill-status-hint", text: /And 2 more failing/
@@ -115,7 +136,7 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
   test "an unavailable Windmill shows the fallback and the page still renders" do
     start_fake_windmill(scenario: "unavailable")
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_response :success
     assert_select ".rubylode-windmill-status-summary.is-unavailable", text: "Status unavailable"
@@ -126,51 +147,51 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
   test "only an administrator sees why the status is unavailable" do
     start_fake_windmill(scenario: "unavailable")
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
     assert_select ".rubylode-windmill-status-hint", 0
 
     reset!
     log_user("admin", "admin")
     RubylodeWindmill::WindmillStatus.cache.clear
-    get "/windmill_status"
+    get "/status/windmill"
     assert_select ".rubylode-windmill-status-hint", text: /Windmill answered 503/
   end
 
   test "an administrator sees a hint while the plugin is not configured, others see nothing" do
-    configure_plugin("windmill_url" => "")
+    configure_plugin("base_url" => "")
     log_user("admin", "admin")
-    get "/windmill_status"
+    get "/status/windmill"
     assert_select ".rubylode-windmill-status-hint a[href=?]", "/settings/plugin/redmine_rubylode_windmill"
 
     reset!
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
     assert_select ".rubylode-windmill-status-hint", 0
     assert_select ".rubylode-windmill-status-summary", 0
   end
 
   test "signed-out visitors are sent to the login page, and administrators-only hides it from others" do
     start_fake_windmill("visibility" => "admins")
-    get "/windmill_status"
+    get "/status/windmill"
     assert_response :redirect
 
     reset!
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
     assert_response :forbidden
 
     reset!
     log_user("admin", "admin")
-    get "/windmill_status"
+    get "/status/windmill"
     assert_response :success
   end
 
   test "Windmill is asked once for two page loads within the cache window" do
     start_fake_windmill
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
     calls_after_first = @fake_windmill.request_count
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_equal calls_after_first, @fake_windmill.request_count
   end
@@ -178,7 +199,7 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
   test "everything Windmill supplies is escaped: a hostile path and error message" do
     start_fake_windmill(scenario: "hostile")
     log_user("jsmith", "jsmith")
-    get "/windmill_status"
+    get "/status/windmill"
 
     assert_response :success
     refute_includes response.body, "<script>alert(\"x\")</script>"

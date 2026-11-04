@@ -1,0 +1,8 @@
+<%# The same two sentences in every Rubylode plugin: whether the Status plugin is there to show this block with the others. %>
+<p class="rubylode-status-notice">
+  <% if RubylodeWindmill::Settings.status_plugin_installed? %>
+    <%= t("rubylode_windmill.status_plugin.installed_html", link: link_to(t("rubylode_windmill.status_plugin.status_page"), "/status")) %>
+  <% else %>
+    <%= t("rubylode_windmill.status_plugin.missing_html", link: link_to("Rubylode Status", "https://github.com/rubylode/redmine-rubylode-status")) %>
+  <% end %>
+</p>

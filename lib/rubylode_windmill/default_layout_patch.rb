@@ -15,24 +15,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-module RedmineRubylodeWindmill
-  module Macros
-    def self.register
-      Redmine::WikiFormatting::Macros.register do
-        desc <<~DESCRIPTION
-          Shows the state of the Windmill workspace set up in the Rubylode Windmill settings: failed runs that need attention
-          and the latest run of the watched schedules.
+module RubylodeWindmill
+  # Puts the status block into Redmine's default My page layout, when the settings ask for it. Only people who have no
+  # layout of their own get it; everyone else adds the block themselves from the My page block list.
+  module DefaultLayoutPatch
+    BLOCK = "rubylode_windmill_status".freeze
 
-            {{windmill_status}}
-            {{windmill_status(title=Automation)}}
+    def default_layout
+      layout = super
+      return layout unless RubylodeWindmill::Settings.current.show_on_my_page?
 
-          Nothing is shown to people who are not allowed to see it.
-        DESCRIPTION
-        macro :windmill_status do |_object, arguments|
-          _positional, options = extract_macro_options(arguments, :title)
-          render partial: "rubylode_windmill/status", locals: { title: options[:title].presence }
-        end
-      end
+      layout.merge("top" => ((layout["top"] || []) + [BLOCK]).uniq)
     end
   end
 end

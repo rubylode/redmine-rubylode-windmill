@@ -18,9 +18,9 @@ async function shoot(name, path, selector, scenario) {
   console.log("saved", `${name}.png`)
 }
 
-await shoot("status-failures", "/windmill_status", ".rubylode-windmill-failures", "failures")
-await shoot("status-all-green", "/windmill_status", ".rubylode-windmill-status-summary.is-ok", "all_green")
-await shoot("status-unavailable", "/windmill_status", ".rubylode-windmill-status-summary.is-unavailable", "unavailable")
+await shoot("status-failures", "/status/windmill", ".rubylode-windmill-failures", "failures")
+await shoot("status-all-green", "/status/windmill", ".rubylode-windmill-status-summary.is-ok", "all_green")
+await shoot("status-unavailable", "/status/windmill", ".rubylode-windmill-status-summary.is-unavailable", "unavailable")
 
 await useScenario("failures")
 const admin = await signedInPage(browser, "admin", "admin", { width: 1280, height: 900 })

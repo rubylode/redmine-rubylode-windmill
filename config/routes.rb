@@ -15,4 +15,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-get "windmill_status", to: "rubylode_windmill_status#show", as: :rubylode_windmill_status
+get "status/windmill", to: "rubylode_windmill_status#show", as: :rubylode_windmill_status, format: false
+
+# The page used to live at /windmill_status. The redirect stays for one release.
+get "windmill_status", to: redirect { |_parameters, request| "#{request.script_name}/status/windmill" }, format: false

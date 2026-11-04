@@ -15,17 +15,22 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-module RedmineRubylodeWindmill
-  # Puts the status block into Redmine's default My page layout, when the settings ask for it. Only people who have no
-  # layout of their own get it; everyone else adds the block themselves from the My page block list.
-  module DefaultLayoutPatch
-    BLOCK = "rubylode_windmill_status".freeze
+module RubylodeWindmill
+  # Redmine saves plugin settings without asking the plugin. This checks ours first: when something is wrong the form is
+  # shown again with what the person typed and a list of the problems, and nothing is saved.
+  module SettingsControllerPatch
+    def plugin
+      return super unless request.post? && params[:id].to_s == RubylodeWindmill::Settings::PLUGIN_ID.to_s
 
-    def default_layout
-      layout = super
-      return layout unless RubylodeWindmill::Configuration.current.show_on_my_page?
+      submitted = params[:settings] ? params[:settings].permit!.to_h : {}
+      errors = RubylodeWindmill::SettingsValidator.errors_for(submitted)
+      return super if errors.empty?
 
-      layout.merge("top" => ((layout["top"] || []) + [BLOCK]).uniq)
+      @plugin = Redmine::Plugin.find(params[:id])
+      @partial = @plugin.settings[:partial]
+      @settings = submitted
+      @validation_errors = errors
+      render "settings/plugin", status: :unprocessable_entity
     end
   end
 end

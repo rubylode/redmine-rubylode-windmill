@@ -25,7 +25,7 @@ class RubylodeWindmill::PluginSettingsTest < Redmine::IntegrationTest
   SETTINGS_PATH = "/settings/plugin/redmine_rubylode_windmill".freeze
 
   GOOD_SETTINGS = {
-    "windmill_url" => "https://windmill.example.com", "workspace_id" => "ops",
+    "base_url" => "https://windmill.example.com", "workspace_id" => "ops",
     "token_environment_variable" => "WINDMILL_MY_TOKEN", "allowed_hosts" => "alias.example.com", "allow_plain_http" => "0",
     "look_back_hours" => "48", "maximum_rows" => "5", "path_prefix" => "f/",
     "watched_schedules" => "Nightly | f/billing/nightly | Copies\nHourly | f/reports/hourly | Refreshes",
@@ -34,7 +34,7 @@ class RubylodeWindmill::PluginSettingsTest < Redmine::IntegrationTest
   }.freeze
 
   setup do
-    Setting.send(:"plugin_#{PLUGIN_ID}=", RedmineRubylodeWindmill::Defaults::SETTINGS.dup)
+    Setting.send(:"plugin_#{PLUGIN_ID}=", RubylodeWindmill::Settings::DEFAULTS.dup)
   end
 
   def saved
@@ -46,7 +46,7 @@ class RubylodeWindmill::PluginSettingsTest < Redmine::IntegrationTest
     get SETTINGS_PATH
 
     assert_response :success
-    %w[windmill_url workspace_id token_environment_variable allowed_hosts allow_plain_http look_back_hours maximum_rows
+    %w[base_url workspace_id token_environment_variable allowed_hosts allow_plain_http look_back_hours maximum_rows
        path_prefix watched_schedules cache_seconds failure_cache_seconds timeout_seconds block_title visibility].each do |field|
       assert_select "[name=?]", "settings[#{field}]"
     end
@@ -60,8 +60,8 @@ class RubylodeWindmill::PluginSettingsTest < Redmine::IntegrationTest
     assert_redirected_to SETTINGS_PATH
     assert_equal "ops", saved["workspace_id"]
     assert_equal "WINDMILL_MY_TOKEN", saved["token_environment_variable"]
-    assert_equal 2, RubylodeWindmill::Configuration.current.watched_schedules.size
-    assert_equal 48, RubylodeWindmill::Configuration.current.look_back_hours
+    assert_equal 2, RubylodeWindmill::Settings.current.watched_schedules.size
+    assert_equal 48, RubylodeWindmill::Settings.current.look_back_hours
   end
 
   test "SECRET_KEY_BASE and DATABASE_PASSWORD are refused at save and nothing is saved" do
@@ -71,13 +71,13 @@ class RubylodeWindmill::PluginSettingsTest < Redmine::IntegrationTest
 
       assert_response :unprocessable_entity
       assert_select "#errorExplanation li", text: /WINDMILL_/
-      assert_equal "", saved["windmill_url"], "nothing was saved for #{name}"
+      assert_equal "", saved["base_url"], "nothing was saved for #{name}"
     end
   end
 
   test "plain http to an outside host is refused at save" do
     log_user("admin", "admin")
-    post SETTINGS_PATH, params: { settings: GOOD_SETTINGS.merge("windmill_url" => "http://windmill.internal") }
+    post SETTINGS_PATH, params: { settings: GOOD_SETTINGS.merge("base_url" => "http://windmill.internal") }
 
     assert_response :unprocessable_entity
     assert_select "#errorExplanation li", text: /https/
@@ -109,7 +109,7 @@ class RubylodeWindmill::PluginSettingsHelpTest < Redmine::IntegrationTest
   PATH = "/settings/plugin/redmine_rubylode_windmill".freeze
 
   setup do
-    Setting.send(:"plugin_#{PLUGIN_ID}=", RedmineRubylodeWindmill::Defaults::SETTINGS.dup)
+    Setting.send(:"plugin_#{PLUGIN_ID}=", RubylodeWindmill::Settings::DEFAULTS.dup)
   end
 
   test "the settings page has the where-to-show fields" do
@@ -122,6 +122,48 @@ class RubylodeWindmill::PluginSettingsHelpTest < Redmine::IntegrationTest
     end
   end
 
+  test "the settings use the standard labels and the placement block" do
+    log_user("admin", "admin")
+    get PATH
+
+    {
+      "settings_base_url" => "Windmill address", "settings_token_environment_variable" => "Token variable",
+      "settings_allowed_hosts" => "Allowed hosts", "settings_allow_plain_http" => "Allow plain http",
+      "settings_look_back_hours" => "Look-back hours", "settings_show_on_welcome_page" => "Welcome page",
+      "settings_show_on_my_page" => "My page", "settings_show_on_project_overview" => "Project Overview page",
+      "settings_show_on_matching_pages" => "Pages matching these paths", "settings_show_in_top_menu" => "Show in the top menu",
+      "settings_welcome_page_column" => "Column", "settings_project_overview_column" => "Column"
+    }.each { |field_id, label| assert_select "label[for=?]", field_id, text: label }
+    assert_select "h3", text: "Show the block on"
+  end
+
+  test "the token hint does not claim the token goes to one address only" do
+    log_user("admin", "admin")
+    get PATH
+
+    assert_select "em.info", text: /only to the Windmill address/, count: 0
+  end
+
+  test "with the Status plugin installed the top menu setting is hidden but keeps its value, and the notice says so" do
+    Setting.send(:"plugin_#{PLUGIN_ID}=", RubylodeWindmill::Settings::DEFAULTS.merge("show_in_top_menu" => "1"))
+    log_user("admin", "admin")
+    with_fake_status_registry do
+      get PATH
+
+      assert_select "label[for=settings_show_in_top_menu]", 0
+      assert_select "input[type=hidden][name=?][value=?]", "settings[show_in_top_menu]", "1"
+      assert_select "p.rubylode-status-notice", text: "Rubylode Status is installed, so this block shows on the Status page."
+    end
+  end
+
+  test "without the Status plugin the settings page links to it" do
+    log_user("admin", "admin")
+    get PATH
+
+    assert_select "label[for=settings_show_in_top_menu]", 1
+    assert_select "p.rubylode-status-notice a[href=?]", "https://github.com/rubylode/redmine-rubylode-status"
+  end
+
   test "the help explains every place with copy-paste snippets" do
     log_user("admin", "admin")
     get PATH
@@ -132,15 +174,15 @@ class RubylodeWindmill::PluginSettingsHelpTest < Redmine::IntegrationTest
     assert_select "#rubylode-windmill-help pre", text: "{{windmill_status(title=Automation)}}"
     assert_select "#rubylode-windmill-help pre", text: /render partial: "rubylode_windmill\/status"/
     assert_select "#rubylode-windmill-help", text: /welcome text/
-    assert_select "#rubylode-windmill-help", text: %r{/windmill_status}
+    assert_select "#rubylode-windmill-help", text: %r{/status/windmill}
   end
 
   test "good placement settings are saved and a bad path is refused" do
     log_user("admin", "admin")
-    good = RedmineRubylodeWindmill::Defaults::SETTINGS.merge("show_on_matching_pages" => "1", "matching_page_paths" => "/issues\n/projects/*/issues", "welcome_page_column" => "left")
+    good = RubylodeWindmill::Settings::DEFAULTS.merge("show_on_matching_pages" => "1", "matching_page_paths" => "/issues\n/projects/*/issues", "welcome_page_column" => "left")
     post PATH, params: { settings: good }
     assert_redirected_to PATH
-    assert_equal ["/issues", "/projects/*/issues"], RubylodeWindmill::Configuration.current.matching_page_paths
+    assert_equal ["/issues", "/projects/*/issues"], RubylodeWindmill::Settings.current.matching_page_paths
 
     post PATH, params: { settings: good.merge("matching_page_paths" => "https://evil.example.com/") }
     assert_response :unprocessable_entity
