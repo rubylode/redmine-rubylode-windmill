@@ -108,7 +108,7 @@ class RubylodeWindmill::StatusWidgetTest < ActiveSupport::TestCase
 
     refute asked
     assert_equal "unknown", data[:state]
-    assert_equal "Windmill is not set up yet.", data[:summary]
+    assert_equal "Windmill is not set up yet", data[:summary]
   end
 end
 

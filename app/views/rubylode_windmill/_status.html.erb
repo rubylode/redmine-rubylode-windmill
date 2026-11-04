@@ -7,14 +7,15 @@
 <% if configuration.visible_to?(User.current) %>
   <% content_for :header_tags, stylesheet_link_tag("rubylode_windmill", plugin: "redmine_rubylode_windmill") %>
   <% block_title = local_assigns[:title].presence || configuration.block_title %>
-  <% show_title = local_assigns.fetch(:show_title, true) %>
+  <% on_status_page = local_assigns.key?(:widget) %>
+  <% show_title = local_assigns.fetch(:show_title, true) && !on_status_page %>
   <% compact = local_assigns.fetch(:compact, false) %>
   <% if configuration.configured? %>
     <% report = RubylodeWindmill::WindmillStatus.safe_report(configuration) %>
     <% run_url = ->(run_id) { run_id.to_s.match?(/\A[0-9a-f-]{36}\z/i) ? "#{configuration.base_url}/run/#{run_id}?workspace=#{ERB::Util.url_encode(configuration.workspace_id)}" : nil } %>
     <div class="rubylode-windmill-status<%= " is-compact" if compact %>">
       <% if show_title %><h3 class="rubylode-windmill-status-title"><%= block_title %></h3><% end %>
-      <p class="rubylode-windmill-status-summary is-<%= report.summary_state.to_s.dasherize %>"><%= report.summary %></p>
+      <% unless on_status_page %><p class="rubylode-windmill-status-summary is-<%= report.summary_state.to_s.dasherize %>"><%= report.summary %></p><% end %>
       <% if report.unavailable? && User.current.admin? %>
         <p class="rubylode-windmill-status-hint"><%= l("rubylode_windmill.hints.reason", reason: report.failure_reason) %></p>
       <% end %>

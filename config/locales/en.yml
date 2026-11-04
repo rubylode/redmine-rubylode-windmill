@@ -10,7 +10,7 @@ en:
         one: "%{count} schedule needs a look"
         other: "%{count} schedules need a look"
       unavailable: Status unavailable
-      not_set_up: Windmill is not set up yet.
+      not_set_up: Windmill is not set up yet
       success: Succeeded
       failure: Failed
       last_run_failed: Last run failed
