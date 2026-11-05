@@ -2,7 +2,7 @@
 
 All notable changes to this plugin. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [2.0.0] - Unreleased
+## [2.0.0] - 2026-11-04
 
 ### Changed
 
@@ -83,7 +83,7 @@ First version. Redmine 7.0 and newer.
 - Theming through `--rubylode-windmill-*` custom properties, with dark mode.
 - A demo with a fake Windmill (`ruby bin/demo up`, port 3015), a browser check and the README screenshots.
 
-[2.0.0]: https://github.com/rubylode/redmine-rubylode-windmill/compare/v1.1.1...main
+[2.0.0]: https://github.com/rubylode/redmine-rubylode-windmill/compare/v1.1.1...v2.0.0
 [1.1.1]: https://github.com/rubylode/redmine-rubylode-windmill/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/rubylode/redmine-rubylode-windmill/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/rubylode/redmine-rubylode-windmill/compare/v1.0.0...v1.0.1
