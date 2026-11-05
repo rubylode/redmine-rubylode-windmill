@@ -13,11 +13,11 @@ The text to paste at www.redmine.org, Plugins, New plugin. Redmine's "Check for 
 
 ## Notes for the current version
 
-Version 2.0.0. Shows failed Windmill runs that need attention and the latest run of chosen schedules, as a wiki macro, a page, a My page block and a partial. Needs Redmine 5.1 or newer. Run the plugin migration when upgrading from 1.x. Install and settings are described in the README at https://github.com/rubylode/redmine-rubylode-windmill.
+Version 2.1.0. Shows failed Windmill runs that need attention and the latest run of chosen schedules, as a wiki macro, a page, a My page block and a partial. Needs Redmine 5.1 or newer. Run the plugin migration when upgrading from 1.x. Install and settings are described in the README at https://github.com/rubylode/redmine-rubylode-windmill.
 
 ## File to upload
 
-`redmine_rubylode_windmill-2.0.0.zip`, the file the GitHub release workflow publishes when a `v2.0.0` tag is pushed. Upload the same file that is attached to the GitHub release.
+`redmine_rubylode_windmill-2.1.0.zip`, the file the GitHub release workflow publishes when a `v2.0.0` tag is pushed. Upload the same file that is attached to the GitHub release.
 
 ## Checking the result
 

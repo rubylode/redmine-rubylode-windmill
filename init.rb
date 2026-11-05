@@ -24,7 +24,7 @@ Redmine::Plugin.register :redmine_rubylode_windmill do
   author_url "https://github.com/rubylode"
   url "https://github.com/rubylode/redmine-rubylode-windmill"
   description "Shows failed Windmill runs that need attention and the latest run of chosen schedules, as a wiki macro, a page, a My page block and a partial"
-  version "2.0.0"
+  version "2.1.0"
   requires_redmine version_or_higher: "5.1.0"
 
   # The caption is the block title. With the Status plugin installed the block is on its page and this item goes.

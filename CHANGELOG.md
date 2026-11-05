@@ -2,6 +2,15 @@
 
 All notable changes to this plugin. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.1.0] - 2026-11-05
+
+No change to what the plugin does. This release carries the documentation and the build.
+
+### Changed
+
+- The screenshots in the README are retaken for 2.0.0: the new labels, the new page path and the Status notice.
+- The workflows use the current versions of the GitHub actions, and Dependabot sends one grouped update a month instead of one pull request per action.
+
 ## [2.0.0] - 2026-11-04
 
 ### Changed
@@ -83,6 +92,7 @@ First version. Redmine 7.0 and newer.
 - Theming through `--rubylode-windmill-*` custom properties, with dark mode.
 - A demo with a fake Windmill (`ruby bin/demo up`, port 3015), a browser check and the README screenshots.
 
+[2.1.0]: https://github.com/rubylode/redmine-rubylode-windmill/compare/v2.0.0...v2.1.0
 [2.0.0]: https://github.com/rubylode/redmine-rubylode-windmill/compare/v1.1.1...v2.0.0
 [1.1.1]: https://github.com/rubylode/redmine-rubylode-windmill/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/rubylode/redmine-rubylode-windmill/compare/v1.0.1...v1.1.0

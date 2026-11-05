@@ -13,7 +13,7 @@ Rubylode Windmill is a plugin for Redmine 5.1 or newer that shows the state of a
 
 The block goes on a wiki page, a page of its own, My page, the welcome page, a project's Overview, the bottom of chosen pages, or another plugin's view. A summary line says "Nothing needs attention" or "3 failing". Windmill is asked once per cache window, not once per page view. When it cannot be reached the block says "Status unavailable" and the rest of the page renders as usual.
 
-Version 2.0.0 needs Redmine 5.1 or newer. CI runs the test suite on Redmine 7.0, 6.1, 6.0 and 5.1. `docs/roadmap/ROADMAP.md` lists what is decided and what is still open. Upgrading from 1.x: see the 2.0.0 entry in `CHANGELOG.md`.
+Version 2.1.0 needs Redmine 5.1 or newer. CI runs the test suite on Redmine 7.0, 6.1, 6.0 and 5.1. `docs/roadmap/ROADMAP.md` lists what is decided and what is still open. Upgrading from 1.x: see the 2.0.0 entry in `CHANGELOG.md`.
 
 ![Failures that still need attention, and the watched schedules](docs/screenshots/status-failures.png)
 
