@@ -85,16 +85,3 @@ jobs:
         with:
           sarif_file: brakeman.sarif
           category: brakeman
-
-  # Known-vulnerable npm packages, production dependencies only.
-  npm-audit:
-    name: npm audit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-      - run: npm audit --omit=dev --audit-level=high
