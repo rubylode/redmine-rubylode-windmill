@@ -28,7 +28,7 @@ module RubylodeWindmill
     SEVERITY = { "ok" => 0, "unknown" => 1, "warning" => 2, "down" => 3 }.freeze
 
     # Registers the widget when Rubylode Status is installed. Returns nil, and does nothing, when it is not.
-    def self.register_with_status_plugin
+    def self.register
       return unless defined?(RubylodeStatus::Registry)
 
       RubylodeStatus::Registry.register(

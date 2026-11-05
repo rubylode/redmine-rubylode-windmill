@@ -118,7 +118,7 @@ class RubylodeWindmill::StatusWidgetRegistrationTest < ActiveSupport::TestCase
   test "the widget is registered with its title, page, partial and visibility when the Status plugin is there" do
     with_fake_status_registry do |registry|
       configure_plugin("block_title" => "Automation", "visibility" => "admins")
-      RubylodeWindmill::StatusWidget.register_with_status_plugin
+      RubylodeWindmill::StatusWidget.register
 
       widget = registry.widgets.fetch("windmill")
       assert_equal "Automation", widget[:title].call
@@ -131,7 +131,7 @@ class RubylodeWindmill::StatusWidgetRegistrationTest < ActiveSupport::TestCase
 
   test "registering twice keeps one widget" do
     with_fake_status_registry do |registry|
-      2.times { RubylodeWindmill::StatusWidget.register_with_status_plugin }
+      2.times { RubylodeWindmill::StatusWidget.register }
 
       assert_equal 1, registry.widgets.size
     end
@@ -140,6 +140,6 @@ class RubylodeWindmill::StatusWidgetRegistrationTest < ActiveSupport::TestCase
   test "nothing is registered and nothing breaks when the Status plugin is missing" do
     refute defined?(RubylodeStatus::Registry)
 
-    assert_nil RubylodeWindmill::StatusWidget.register_with_status_plugin
+    assert_nil RubylodeWindmill::StatusWidget.register
   end
 end
