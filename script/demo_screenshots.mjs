@@ -25,9 +25,9 @@ await shoot("status-unavailable", "/status/windmill", ".rubylode-windmill-status
 await useScenario("failures")
 const admin = await signedInPage(browser, "admin", "admin", { width: 1280, height: 900 })
 await admin.goto(`${baseUrl}/settings/plugin/redmine_rubylode_windmill`, { waitUntil: "load" })
-await admin.waitForSelector("#rubylode-windmill-help")
-const help = await admin.locator("#rubylode-windmill-help").boundingBox()
-await admin.screenshot({ path: `${out}settings-where-to-show.png`, fullPage: true, clip: { x: 0, y: help.y - 40, width: 1280, height: Math.min(help.height + 60, 900) } })
+await admin.waitForSelector(".rubylode-status-notice")
+const section = await admin.locator("h3", { hasText: /^Show the block on$/ }).boundingBox()
+await admin.screenshot({ path: `${out}settings-where-to-show.png`, fullPage: true, clip: { x: 0, y: section.y - 20, width: 1280, height: 764 } })
 console.log("saved settings-where-to-show.png")
 
 await browser.close()
