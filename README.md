@@ -121,7 +121,7 @@ The top menu entry is a plugin menu item (`menu :top_menu, ...` in `init.rb`). I
 
 The page of its own moved from `/windmill_status` to `/status/windmill`. The old address redirects there for one release. When [Rubylode Status](https://github.com/rubylode/redmine-rubylode-status) is installed, this plugin registers its block with it, so the block also shows on the Status page, the plugin's own top menu item and its "Show in the top menu" setting go away, and the settings page says so. Without Rubylode Status nothing changes.
 
-![Where to show the block, and the help under the settings](docs/screenshots/settings-where-to-show.png)
+![Where to show the block, the Rubylode Status notice and the help under the settings](docs/screenshots/settings-where-to-show.png)
 
 ## Security
 
