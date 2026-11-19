@@ -2,6 +2,14 @@
 
 All notable changes to this plugin. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.1.1] - 2026-11-19
+
+No change to what the plugin does.
+
+### Changed
+
+- The Status widget is registered through the shared `register` call.
+
 ## [2.1.0] - 2026-11-05
 
 No change to what the plugin does. This release carries the documentation and the build.
