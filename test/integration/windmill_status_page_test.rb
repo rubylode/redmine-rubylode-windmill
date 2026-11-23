@@ -210,4 +210,38 @@ class RubylodeWindmill::WindmillStatusPageTest < Redmine::IntegrationTest
     assert_select "td.rubylode-windmill-status-error", text: FakeWindmillServer::HOSTILE_ERROR
     assert_select "td.rubylode-windmill-status-path", text: /f\/evil\/<b>bold<\/b>/
   end
+
+  test "the page links to Windmill itself" do
+    start_fake_windmill
+    log_user("jsmith", "jsmith")
+    get "/status/windmill"
+
+    assert_select "a.rubylode-windmill-source-link.external[href=?]", @fake_windmill.base_url, text: "Open Windmill"
+    assert_select "a.rubylode-windmill-source-link[target]", 0
+  end
+
+  test "the link to Windmill is still there when Windmill cannot be reached" do
+    start_fake_windmill(scenario: "unavailable")
+    log_user("jsmith", "jsmith")
+    get "/status/windmill"
+
+    assert_select ".rubylode-windmill-status-summary.is-unavailable", text: "Status unavailable"
+    assert_select "a.rubylode-windmill-source-link[href=?]", @fake_windmill.base_url, text: "Open Windmill"
+  end
+
+  test "there is no link to Windmill while the plugin is not configured" do
+    configure_plugin("base_url" => "")
+    log_user("admin", "admin")
+    get "/status/windmill"
+
+    assert_select "a.rubylode-windmill-source-link", 0
+  end
+
+  test "a person the block is hidden from gets no link to Windmill" do
+    start_fake_windmill("visibility" => "admins")
+    log_user("jsmith", "jsmith")
+    get "/"
+
+    assert_select "a.rubylode-windmill-source-link", 0
+  end
 end

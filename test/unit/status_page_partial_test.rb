@@ -47,4 +47,9 @@ class RubylodeWindmill::StatusPagePartialTest < ActiveSupport::TestCase
     refute_includes html, "rubylode-windmill-status-title"
     refute_includes html, "rubylode-windmill-status-summary"
   end
+
+  test "on the Status page the link to Windmill is still drawn, and in the compact variant too" do
+    assert_includes render_partial(widget: Object.new), 'class="rubylode-windmill-source-link external"'
+    assert_includes render_partial(compact: true), "Open Windmill"
+  end
 end

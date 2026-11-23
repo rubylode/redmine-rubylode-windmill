@@ -25,6 +25,7 @@ en:
       missing_html: "Install %{link} to see this with the other status blocks on one page."
       installed_html: "Rubylode Status is installed, so this block shows on the %{link}."
       status_page: Status page
+    source_link: Open Windmill
     headings:
       needs_attention: Needs attention
       schedules: Watched schedules

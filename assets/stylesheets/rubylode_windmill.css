@@ -100,6 +100,11 @@ body.dark .rubylode-windmill-status {
   background: var(--rubylode-windmill-overdue-background);
 }
 
+.rubylode-windmill-source-link-line {
+  margin: 0 0 var(--rubylode-windmill-gap);
+  text-align: right;
+}
+
 .rubylode-windmill-status-hint {
   margin: 0 0 var(--rubylode-windmill-gap);
   color: var(--rubylode-windmill-text-muted);

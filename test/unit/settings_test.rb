@@ -145,4 +145,17 @@ class RubylodeWindmill::SettingsPlacementTest < ActiveSupport::TestCase
     assert configuration.show_on_matching_pages?
     assert_equal ["/issues", "/projects/*/issues"], configuration.matching_page_paths
   end
+
+  test "the source link address is the base address" do
+    assert_equal "https://windmill.example.com", configuration_with("base_url" => "https://windmill.example.com/").source_link_address
+  end
+
+  test "there is no source link address while there is no base address" do
+    assert_nil configuration_with("base_url" => "").source_link_address
+  end
+
+  test "an address that is not a web address gives no source link address" do
+    assert_nil configuration_with("base_url" => "javascript:alert(1)").source_link_address
+    assert_nil configuration_with("base_url" => "ftp://windmill.example.com").source_link_address
+  end
 end

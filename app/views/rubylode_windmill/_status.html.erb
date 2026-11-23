@@ -16,6 +16,9 @@
     <div class="rubylode-windmill-status<%= " is-compact" if compact %>">
       <% if show_title %><h3 class="rubylode-windmill-status-title"><%= block_title %></h3><% end %>
       <% unless on_status_page %><p class="rubylode-windmill-status-summary is-<%= report.summary_state.to_s.dasherize %>"><%= report.summary %></p><% end %>
+      <% if (source_link_address = configuration.source_link_address) %>
+        <p class="rubylode-windmill-source-link-line"><%= link_to l("rubylode_windmill.source_link"), source_link_address, class: "rubylode-windmill-source-link external" %></p>
+      <% end %>
       <% if report.unavailable? && User.current.admin? %>
         <p class="rubylode-windmill-status-hint"><%= l("rubylode_windmill.hints.reason", reason: report.failure_reason) %></p>
       <% end %>

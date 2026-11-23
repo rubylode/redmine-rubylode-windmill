@@ -84,6 +84,11 @@ def self.web_address?(value)
       @settings["base_url"].to_s.strip.chomp("/")
     end
 
+    # The address the "Open Windmill" link points to: the base address, when it is a web address; otherwise nil.
+    def source_link_address
+      self.class.web_address?(base_url) ? base_url : nil
+    end
+
     def windmill_host
       URI.parse(base_url).host.to_s.downcase
     rescue URI::InvalidURIError
